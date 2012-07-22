@@ -51,7 +51,7 @@
 
 % Misc
 \RequirePackage{textpos} % absolute positioning of text on the page
-%\RequirePackage[crop=pdfcrop]{pstool} % ?
+%\RequirePackage[crop=pdfcrop]{pstool} % crops pdf margins
 %\RequirePackage{relsize} %  set font sizes relative to the current size
 
 % Tables
@@ -59,8 +59,8 @@
 \RequirePackage{array}
 \RequirePackage{multirow} % Columns spanning multiple rows
 
-% Bookmarks for sections and lists and turns references and urls into links.
-\RequirePackage[backref]{hyperref} 
+% Bookmarks for sections and lists and turns references and urls into links
+\RequirePackage[backref]{hyperref} % backreferencing turned on
 
 % Sourcecode listings
 \RequirePackage{listings} 
@@ -71,13 +71,13 @@
 % Compilation-time checks
 \RequirePackage{strict}
 \RequirePackage[strict=true]{csquotes}
-\RequirePackage{refcheck}
+%\RequirePackage{refcheck}
 
 % TODO lists
 \RequirePackage{todonotes}
 
 % multiline comments
-\RequirePackage{verbatim}
+%\RequirePackage{verbatim}
 
 % Nomenclature
 %\RequirePackage[intoc]{nomencl} % Nomenclature package
