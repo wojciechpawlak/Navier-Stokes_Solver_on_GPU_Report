@@ -1,0 +1,39 @@
+\documentclass[a4paper,12pt,oneside]{wpdtureport}
+
+\begin{document}
+	\chapterstyle{wpdtu}
+%	\pagestyl1e{}
+  	\maxsecnumdepth{subsection}
+ 
+	\frontmatter
+		\pagenumbering{roman}
+		\maketitle
+		\clearpage
+%		\input{1_frontmatter/abstract}
+		\tableofcontents
+		\clearpage
+%		\listoffigures
+		\clearpage
+%		\listoftables
+
+	\mainmatter
+		\pagenumbering{arabic}
+		\setcounter{page}{1}
+		\setcounter{secnumdepth}{2}
+
+		\input{2_mainmatter/1_introduction}
+		\input{2_mainmatter/2_survey}
+		\input{2_mainmatter/3_navier_stokes}
+		\input{2_mainmatter/4_design_implementation
+		\input{2_mainmatter/5_performance_analysis}
+		\input{2_mainmatter/6_conclusions}
+
+	\backmatter
+		\bibliographystyle{alpha}\renewcommand{\bibname}{References}
+		\bibliography{3_backmatter/references}
+
+		%\appendix
+		%\listofappendices
+		%\input{3_backmatter/appendix}
+
+\end{document}

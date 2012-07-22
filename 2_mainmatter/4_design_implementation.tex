@@ -1,0 +1,47 @@
+\chapter{Design and Implementation}
+
+\section{Design}
+
+A set of kernels
+
+Modularity
+
+All code should be executed on GPU for valid comparison. 
+
+
+\section{Implementation}
+Code in project is based on structure from Griebel's code. Least as possible was changed in structure as to keep it comparable with the original code.
+
+Code is written in C and OpenCL C.
+
+Two-dimensional arrays in original 
+One-dimensional arrays for OpenCL code. 1D arrays cannot be passed to OpenCL kernels.
+
+Worksize
+
+Implementation consists of sets of kernels as 
+
+Griebel's cod intrinsics: Memory allocation
+
+Code is portable and works under both on Windows and Unix platforms. Tested on Windows 7 and Linux clusters. Compilers used are nvcc and Visual Studio on Windows and gcc on Linux.
+
+Table Computer specs.
+
+
+
+\subsection{Description of functions}
+
+Table
+
+\subsection{Benchmarking code}
+Code is timed with standard library time.h clock function.
+No OpenCL timer code because on CPU. Code timed with buffer allocation/memory access and without.
+
+\subsection{Visualisation code}
+Matlab scripts to visualise code. Tests.
+
+\subsection{Naive kernels}
+Straightforward port of functions to kernels. Getting rid of for loops. Ensuring that boundaries are not crossed.
+
+
+\subsection{Shared memory kernels}
