@@ -2,7 +2,7 @@
 
 \begin{document}
 	\chapterstyle{wpdtu}
-%	\pagestyl1e{}
+%	\pagestyle{}
   	\maxsecnumdepth{subsection}
  
 	\frontmatter
@@ -21,12 +21,12 @@
 		\setcounter{page}{1}
 		\setcounter{secnumdepth}{2}
 
-		\input{2_mainmatter/1_introduction}
-		\input{2_mainmatter/2_survey}
-		\input{2_mainmatter/3_navier_stokes}
-		\input{2_mainmatter/4_design_implementation
-		\input{2_mainmatter/5_performance_analysis}
-		\input{2_mainmatter/6_conclusions}
+		\include{2_mainmatter/1_introduction}
+		\include{2_mainmatter/2_survey}
+		\include{2_mainmatter/3_navier_stokes}
+		\include{2_mainmatter/4_design_implementation}
+		\include{2_mainmatter/5_performance_analysis}
+		\include{2_mainmatter/6_conclusions}
 
 	\backmatter
 		\bibliographystyle{alpha}\renewcommand{\bibname}{References}
