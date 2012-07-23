@@ -1,12 +1,45 @@
 \chapter{Survey of GPU programming}
 
+Heterogeneous: Developers leverage AMD GPUs and CPUs for optimal application performance and user experience
+
+Industry Standards:OpenCL™ and DirectCompute11enable cross-platform development
+
+High performance: Massively parallel, programmable GPU architecture enables superior performance and power efficiency
+
+With OpenCL
+
+Leverage CPUs and GPUs to accelerate parallel computation
+Get dramatic speedups for computationally intensiveapplications
+Write accelerated portablecode across different devices and architectures
+
+
 AMD APP Acceleration 
 
 
 \hyperref[AMD]{http://stackoverflow.com/questions/1126989/what-future-does-the-gpu-have-in-computing}
 
 
-\section{CUDA/OpenCL}
+\section{OpenCL}
+
+22Kernel
+Basic unit of executable code -similar to a C function
+Data-parallel or task-parallelProgram
+Collection of kernels and other functions
+Analogous to a dynamic libraryApplications queue kernel execution instances
+Queued in-order
+Executed in-order or out-of-order
+
+Pipeline - table:
+find platform
+find device
+create context and queue
+build program
+write device buffers
+execute kernel in range
+read device buffers
+
+
+\subsection{Differences to CUDA}
 
 \section{Previous research}
 
