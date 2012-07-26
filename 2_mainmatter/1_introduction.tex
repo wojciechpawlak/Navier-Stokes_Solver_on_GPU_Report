@@ -1,19 +1,9 @@
 \chapter{Introduction}
 The goal of this report is to document the work done for individual special course \enquote{A GPU-accelerated Navier-Stokes Solver using OpenCL}. The project took place in GPUlab of Scientific Computing Section of Department of Informatics and Mathematical Modeling (DTU Informatics) at Technical University of Denmark. The project work for this special course took place between late March until early August 2012 and was supervised by Allan P. Engsig-Karup Ph.D. The course was worth 5 ECTS points.
 
-The practical goal of this project was to design and implement a scientific computing application for execution on GPUs. The implemented application was then verified and validated using standard benchmarks. 
+The practical goal of this project was to design and implement a scientific computing application for execution on GPUs. The application was a Partial Differential Equations (PDE) solver for Navier-Stokes equations, which form a basis for most of Computational Fluid Dynamics (CFD) problems. The application was supposed to make us  The solution was based on sequential implementation by Griebel et al.\cite{griebel1998numerical}. The implemented solution was verified and validated through simulation of standard benchmarking problems in the field like lid-driven cavity problem, flow-over a backward-facing step, flow past an obstacle and others. The performance of implemented PDE solver was analysed for different sizes of two-dimensional grids. As different optimization techniques were applied for improving performance of the PDE solver, solution consists of several versions, varying in the level of optimization. The target platform was a Graphical Processing Unit (GPU). The technology used in implementation was OpenCL, an open standard framework for implementation of programmes that execute across various heterogeneous multicore architectures like CPUs or GPUs. Thus understanding the intrinsics of platform and the approach to write parallel programs using chosen technology was a prerequisite to meet the goals of the project. Moreover, for the project to be feasible familiarization with the application of basic principles of numerical approximation and discretization was necessary.
 
-The performance of implemented PDE solver was analyzed.
-
-Apply optimization techniques for improving performance of PDE solver on GPUs.
-
-Understand how to write a parallel program using OpenCL for heterogenous computing on many-core architectures.
-
-Apply basic principles for numerical approximation/discretization.
-
-Section 2 is 
-
-Section 3 is
+The report is structured as follows. Section 2 is a survey of current (as of July 2012) state of technologies that can be used for development targeted to GPU architecture. A look into how different vendors implement the OpenCL standard is presented. In addition, a general overview of current achievements in GPU architectures are shown. Section 3 consists of description of necessary theory behind the problem in question. Section shows the Navier-Stokes equations, how are they discretized  
 
 Section 4 is
 

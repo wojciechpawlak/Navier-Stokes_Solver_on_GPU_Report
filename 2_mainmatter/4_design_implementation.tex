@@ -30,6 +30,21 @@ Table Computer specs.
 
 Table
 
+\subsection{Functions}
+Map
+
+The map operation simply applies the given function (the kernel) to every element in the stream. A simple example is multiplying each value in the stream by a constant (increasing the brightness of an image). The map operation is simple to implement on the GPU. The programmer generates a fragment for each pixel on screen and applies a fragment program to each one. The result stream of the same size is stored in the output buffer.
+
+
+Reduce
+
+Some computations require calculating a smaller stream (possibly a stream of only 1 element) from a larger stream. This is called a reduction of the stream. Generally a reduction can be accomplished in multiple steps. The results from the prior step are used as the input for the current step and the range over which the operation is applied is reduced until only one stream element remains.
+
+Gather
+
+The fragment processor is able to read textures in a random access fashion, so it can gather information from any grid cell, or multiple grid cells, as desired.
+
+
 \subsection{Benchmarking code}
 Code is timed with standard library time.h clock function.
 No OpenCL timer code because on CPU. Code timed with buffer allocation/memory access and without.
