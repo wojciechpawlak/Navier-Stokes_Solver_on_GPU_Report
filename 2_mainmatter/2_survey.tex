@@ -1,5 +1,7 @@
 \chapter{Survey of GPU programming}
 
+General-purpose computing on graphics processing units 	Diffusion of non standardized methods 	CPU for a few specialized uses 	Order of magnitude faster processing of parallelizable algorithms
+
 For the exploitation of the high performance of GPUs, codes must express sufficient fine-grained parallelism, minimize GPU–CPU data transfer, and achieve coalesced memory access. One option for writing the GPU code is to do so directly in CUDA [1] or OpenCL [27]. For a large Fortran code written well before the existence of GPUs, this entails a massive effort to rewrite, debug, and maintain a separate branch of the code. An alternative to performing such a monolithic code rewrite is to follow the ‘accelerator design’, as so called by Cohen and Molemaker, of porting bottleneck loops or subroutines in isolation, with memory transfer calls made just before and after these bottleneck loops or subroutines. Although this allows for the possibility of an incremental porting effort, it suffers the drawback of introducing the crippling bottleneck of a large amount of data transfer across the system bus, which has at least an order of magnitude lower bandwidth than that of the internal GPU memory, and thus severely restricts the possible gain in performance when porting
 
 Heterogeneous: Developers leverage AMD GPUs and CPUs for optimal application performance and user experience
