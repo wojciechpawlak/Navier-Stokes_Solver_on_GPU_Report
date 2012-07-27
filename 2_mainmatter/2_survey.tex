@@ -20,6 +20,21 @@ Write accelerated portablecode across different devices and architectures
 AMD APP Acceleration 
 
 
+AMD is still pushing its OpenCL strategy for GPU computing. 
+
+From NVIDIA's perspective, the overriding goal is to bring GPU computing into the post-CUDA age.  CUDA C and Fortran are the most widely used programming languages for GPU programming today, but the underlying technology is proprietary to NVIDIA and offers a relatively low-level software model of GPU computing. As a result, the use of CUDA today tends to be restricted to computer science types, rather than the average programmer or researcher.
+
+\hyperref{}{http://developer.amd.com/sdks/AMDAPPSDK/samples/showcase/Pages/default.aspx}
+\hyperref{}{http://developer.amd.com/archive/AppShowcaseArchive/Pages/default.aspx}
+
+Can write in C++ too.
+
+Ports to Java (JavaCL) and Python (PyOpenCL).
+
+
+Adopters: \hyperref{}{http://www.khronos.org/conformance/adopters/adopter-companies}
+\hyperref{}{http://www.khronos.org/conformance/adopters/conformant-companies}
+
 \subsection{Automation of porting to GPU process}
 
 \hyperref[AMD]{http://stackoverflow.com/questions/1126989/what-future-does-the-gpu-have-in-computing}
@@ -52,8 +67,26 @@ write device buffers
 execute kernel in range
 read device buffers
 
+\subsection{Developing OpenCL Code}
+Most of the development was done on Intel Processor and NVIDIA Geforce Card on Windows Platform. Microsoft Visual Studio 2010 IDE was used for development.
+
+The largest problem during GPU programming is lack of debugging options. The choice of debugger is dependant on the platform used. Some combinations will then be not supported. It was the case during the development process for this project as NVIDIA card was combined with OpenCL technology.  Two working options for debugging found: NVIDIA Nsight (currently in version 4.2) and AMD gDEBugger (currently in version 6.2).
+
+First supports CUDA code only. The tool is an application in a client-server architecture.  The Visual Studio Plugin serves as a client to the Monitor client process run on the machine. This allows for remote access to GPUs. Moreover, the breakpoints can be set inside the CUDA kernel code and the current state of local variables, warps and working items will be presented. This valuable data is available through a set of info windows. Warps can be observed. Tool does not work with OpenCL code though. It is not possible to set breakpoints in OpenCL code. Tool is distributed as a plugin to Visual Studio 2010.
+
+The second works only with OpenCL code on the AMD devices. Stops on breakpoints on host. Can be asked to stop on specific OpenCL functions. Offers function call history an function properties. There is also an explorer where OpenCL constructs are presented in a tree structure.
+
+In addition, there is an Intel SDK that allows for checking if the code is ready to be run on Intel platform like CPU or new 3rd generation processors with hardware graphics embedded. An offline compiler is used tor these purposes. 
+
+\subsection{Profiling OpenCL Code}
+
+Nsight Profiler
+
+AMD gDEBugger
 
 \subsection{Differences to CUDA}
+
+\hyperref{}{http://www.hpcwire.com/hpcwire/2012-02-28/opencl_gains_ground_on_cuda.html}
 
 \section{Previous research}
 
@@ -72,6 +105,11 @@ OpenCL Studio
 
 \subsection{CUDA}
 
+4.2
+
+In Decemeber, NVIDIA made its nvcc compiler open.
+\hyperref{}{http://www.hpcwire.com/hpcwire/2012-01-26/nvidia_releases_upgraded_cuda_compiler,_visual_profiler,_and_npp_library.html}
+
 \subsection{Other Technologies}
 \subsubsection{C++ AMP (C++ Accelerated Massive Parallelism)}
 
@@ -80,7 +118,12 @@ OpenCL Studio
 \subsubsection{OpenACC}
 Directives like OpenMP for multicore CPU programming
 
+announcement of a new directives-based parallel programming standard for accelerators.  Called OpenACC, the open standard is intended to bring GPU computing into the realm of the average programmer, while making the resulting code portable across other accelerators and even multicore CPUs
 \hyperref[OpenACC]{http://openacc.org/}
+\hyperref{OpenACC}{http://www.hpcwire.com/hpcwire/2011-12-07/nvidia_eyes_post-cuda_era_of_gpu_computing.html}
+\hyperref{}{http://www.hpcwire.com/hpcwire/2012-06-20/openacc_group_reports_expanding_support_for_accelerator_programming_standard.html}
+
+But the real end game for OpenACC supporters is for the directives to be incorporated into the OpenMP standard.  Since OpenACC was derived from work done within the OpenMP Working Group on Accelerators,
 
 \subsubsection{AMD Accelerated Parallel Processing (APP) SDK}
 formerly ATI Stream
@@ -88,6 +131,15 @@ formerly ATI Stream
 \hyperref[AMD 1]{http://developer.amd.com/sdks/AMDAPPSDK/Pages/default.aspx}
 
 \hyperref[AMD 2]{http://www.amd.com/us/products/technologies/amd-app/Pages/eyespeed.aspx}
+
+
+
+
+
+
+
+
+
 
 \section{Current advances in NVIDIA and AMD Architectures}
 today we have two viable and
@@ -104,6 +156,10 @@ GPUs on super-computers
 
 \subsection{AMD}
 \subsubsection{APU}
+\subsubsection{GPUs}
+multicore x86
 
 \subsection{Intel}
 \subsubsection{Intel SDK for OpenCL Applications 2012}
+
+Intel's upcoming Many Integrated Core (MIC) coprocessor, Intel MIC
