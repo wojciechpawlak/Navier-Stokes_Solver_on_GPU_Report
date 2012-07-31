@@ -1,3 +1,36 @@
 \chapter{Performance Analysis}
 
+Synchronization between work-items is possible only within workgroups using barriers and memory fences. It is not possible to synchronize workitems that are in different workgroups. This would hinder data parallelism.
+
+Memory management is explicit, so a programmer moves data from host to global memory of device first using OpenCL constructs. Then it can be moved to local memory. To read the results on the host the process has to be reverted.
+
+Workgroup size for a given algorithm should be selecten to be an even multiple of the width of the hardware scheduling units.
+
 \section{Computed results}
+Theoretic bandwidth vs. Effective bandwidth
+
+Trap of premature optimization
+
+Visual Profiler Recommendations
+
+Bandwidth
+
+Data Transfer Between Host and Device
+
+PCIe
+
+coalescing global memory accesses
+
+compute capability 2.x
+
+Branching and Divergence
+Avoid different execution paths within the same warp.
+
+vector operations, vector variables
+
+built-in math functions, fast optimized library
+
+Syncrhonization on Global and Local barriers
+
+Synchronization between kernels in the queue. All the kernels are waiting for another to finish to work on nits results.
+One device - one queue.

@@ -44,10 +44,12 @@ Gather
 
 The fragment processor is able to read textures in a random access fashion, so it can gather information from any grid cell, or multiple grid cells, as desired.
 
+\subsection{Stencil computation}
+
 
 \subsection{Benchmarking code}
 Code is timed with standard library time.h clock function.
-No OpenCL timer code because on CPU. Code timed with buffer allocation/memory access and without.
+No OpenCL timer code because on CPU. Code timed with buffer allocation and memory access and without.
 
 \subsection{Visualisation code}
 Matlab scripts to visualise code. Tests.
@@ -57,3 +59,6 @@ Straightforward port of functions to kernels. Getting rid of for loops. Ensuring
 
 
 \subsection{Shared memory kernels}
+
+\subsection{Development}
+Production code should, however, systematically check the error code returned by each API call and check for failures in kernel launches (or groups of kernel launches in the case of concurrent kernels) 

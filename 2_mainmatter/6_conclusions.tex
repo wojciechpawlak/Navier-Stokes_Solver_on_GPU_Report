@@ -1,1 +1,32 @@
 \chapter{Conclusions}
+\section{General}
+The project's goal was to get acquainted with doing computations on GPU.
+
+No prior experience with CFD codes and optimizations of numerical methods. If had any could come up with implementation of other numerical method that could be easier to parallelize. 
+
+No prior experience with OpenCL (in most parts the same as CUDA, but lack tools)
+
+Lot of problems with constructing even the naive kernel as to get the maximum benefit from parallelizing code on GPU, focus should be first drawn to find ways to parallelize sequential code. Code was thus looked as subblocks of same computations. Most data parallelism should be found.
+
+Problems with bandwidth and minizming transfer between the host an the device, because it was not directly possible to create a kernel from many parts of the algorithm. Examples were researched. Stencil code implementations were found.
+
+To watch the results of minimization in the use of global memory, some version of kernels were implemented. Prefer shared memory access where possible. 
+
+
+Float and double precison.
+
+Other platforms
+
+Different sizes of arrays with regular step
+
+NVIDIA Profiler used
+
+\section{Improvements}
+% Do it as a list.
+Another type of memory object supported by OpenCL could be used and tested, namely images. They are optimized for two-dimensional access patterns. Such access was used in this project as grids of cells are two-dimensional. The challenge would be to learn how to work with this type of memory object as the data stored in it is accessible only through specialized access functions. In comparison, the buffer objects that were used map directly to the standard array representation that programmers are used to when using C programming language.
+
+
+\section{Future Work}
+% Do it as a list.
+
+Solution could be simulated on Tegra chip on Android Platform to check the performance of computation on yet another type of platform. This time a mobile GPU would be used. Such
