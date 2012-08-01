@@ -9,12 +9,13 @@
 		\pagenumbering{roman}
 		\maketitle
 		\clearpage
-%		\input{1_frontmatter/abstract}
+%		\include{1_frontmatter/abstract}
+%		\clearpage
 		\tableofcontents
 		\clearpage
-%		\listoffigures
+		\listoffigures
 		\clearpage
-%		\listoftables
+		\listoftables
 
 	\mainmatter
 		\pagenumbering{arabic}
@@ -31,9 +32,11 @@
 	\backmatter
 		\bibliographystyle{plain}\renewcommand{\bibname}{References}
 		\bibliography{3_backmatter/references}
-
-		%\appendix
-		%\listofappendices
-		%\input{3_backmatter/appendix}
+		\clearpage
+		\appendix
+		\listofappendices
+		\include{3_backmatter/appendix1}
+		\include{3_backmatter/appendix2}
+		\include{3_backmatter/appendix3}
 
 \end{document}
