@@ -1,71 +1,52 @@
-\chapter{Survey of GPU programming}
-\section{Current state of GPGPU}
-General-purpose computing on graphics processing units (abbreviated GPGPU) is	Diffusion of non standardized methods 	CPU for a few specialized uses 	Order of magnitude faster processing of parallelizable algorithms
+\chapter{Survey of GPGPU programming}
+\section{General trends in GPGPU programming}
+General-purpose computing on graphics processing units (abbreviated GPGPU) is a technique that utilizes graphics processing units (GPUs). Initially they were used to handle advanced computations in computer graphics in games and visualisations. However, there is a growing trend to extend their usage to perform data-intensive computations that were until not long ago still bound to CPUs only. This means an overall acceleration in variuos general-purpose scientific and engineering applications. In this project, a GPU-based computation-intensive program was implemented, so the platform at hand had to be thoroughly investigated to make most use of it. Thus, this section will focus on this platform mainly and will try to define current efforts in GPU programming as of July 2012.
 
-For the exploitation of the high performance of GPUs, codes must express sufficient fine-grained parallelism, minimize GPU–CPU data transfer, and achieve coalesced memory access. One option for writing the GPU code is to do so directly in CUDA [1] or OpenCL [27]. For a large Fortran code written well before the existence of GPUs, this entails a massive effort to rewrite, debug, and maintain a separate branch of the code. An alternative to performing such a monolithic code rewrite is to follow the accelerator design, as so called by Cohen and Molemaker, of porting bottleneck loops or subroutines in isolation, with memory transfer calls made just before and after these bottleneck loops or subroutines. Although this allows for the possibility of an incremental porting effort, it suffers the drawback of introducing the crippling bottleneck of a large amount of data transfer across the system bus, which has at least an order of magnitude lower bandwidth than that of the internal GPU memory, and thus severely restricts the possible gain in performance when porting
+Massively parallel, programmable GPU architecture enables superior performance and power efficiency thorugh thousands of smaller, more efficient cores that are mainly intended to be used for parallel computation. Current CPUs consist of a few cores optimized for serial processing. While CPU runs the remainder of the code that mainly controls the flow of the program, GPU allow for order of magnitude faster processing of data through parallelizable data-intensive algorithms. To exploit the high performance of GPUs though, the implementation must express sufficient fine-grained parallelism. Moreover, GPU–CPU data transfer should be minimized and coalesced memory access achieved. A programming model to achieve that has to be provided yielding best performance results possible with a burden of low-level programming. Although the field is relatively young, it progresses extremely fast as already hit the mainstream.
 
-Heterogeneous: Developers leverage AMD GPUs and CPUs for optimal application performance and user experience
+First immediate observation is that there is a still diffusion of non standardized methods in the field, although standardization efforts can be observed. OpenCL is the currently dominant open general-purpose GPU computing language. Dominant proprietary framework is NVIDIA's CUDA framework. One option for writing code to execute on GPU is thus to use directly one of these frameworks. However, for a large scientific Fortran or C code, that was written long before the GPUs even existed, this requires a large effort to rewrite, debug, and maintain a separate version of the code.
 
-Industry Standards:OpenCL and DirectCompute11enable cross-platform development
+Furthermore, in the advent of heterogeneous computing systems of which CPU-GPU combination is an example grow in their complexity. They usually consist of a variety of device architectures like: multi-core CPUs, GPUs, Accelerated Processing Units (APUs) or specialized FPGAs to name a a few. Programs need to be designed to work on multiple platforms and be implemented with parallelism in mind that span over number of devices. Such scale is not addressed in this report though.
 
-High performance: Massively parallel, programmable GPU architecture enables superior performance and power efficiency
+Currently, there are two significant industry players in the GPU market: NVIDIA and AMD. This is due to the fact that they are two remaining vendors of GPU architectures nowadays. 
 
-With OpenCL
+As a GPU programming pioneer and 5-years-long-runner NVIDIA has succeeded in providing means to program their proprietary hardware. Most of their efforts go into marketing their CUDA technology and the platforms that support it. From NVIDIA's perspective the main goal now is to bring GPU computing into the post-CUDA age. CUDA C and Fortran are the most widely used programming languages for GPU programming nowadays. However, as the underlying technology is proprietary to NVIDIA and a software model of GPU computing offered is relatively low-level, the use of CUDA today tends to be restricted to computer scientists. The average programmer can be discouraged by the number of new constructs to learn and the lack of abstraction. Researchers are mostly interested in ad-hoc boost in performance of their algorithms usually written in high-level languages. They seek automation in process of porting their codes to GPU platforms.
 
-Leverage CPUs and GPUs to accelerate parallel computation
-Get dramatic speedups for computationally intensiveapplications
-Write accelerated portablecode across different devices and architectures
+Meanwhile, AMD chose another approach and is busy implementing and supporting the latest specification of OpenCL standard.
 
-
-AMD APP Acceleration 
+Other companies like Intel try to catch up on them introducing their own specialized hardware - CPUs with embedded Hardware Graphics and technologies and providing implementation and support for the current standards like OpenCL.
 
 
-AMD is still pushing its OpenCL strategy for GPU computing. 
-
-From NVIDIA's perspective, the overriding goal is to bring GPU computing into the post-CUDA age.  CUDA C and Fortran are the most widely used programming languages for GPU programming today, but the underlying technology is proprietary to NVIDIA and offers a relatively low-level software model of GPU computing. As a result, the use of CUDA today tends to be restricted to computer science types, rather than the average programmer or researcher.
 
 % \hyperref{a}{http://developer.amd.com/sdks/AMDAPPSDK/samples/showcase/Pages/default.aspx}
 % \hyperref{b}{http://developer.amd.com/archive/AppShowcaseArchive/Pages/default.aspx}
-
-Can write in C++ too.
-
-Ports to Java (JavaCL) and Python (PyOpenCL).
-
-
-Adopters: % \hyperref{c}{http://www.khronos.org/conformance/adopters/adopter-companies}
-% \hyperref{d}{http://www.khronos.org/conformance/adopters/conformant-companies}
-
-\subsection{Automation of porting to GPU process}
-
-% \hyperref[AMD]{http://stackoverflow.com/questions/1126989/what-future-does-the-gpu-have-in-computing}
-
+% \hyperref[c]{http://stackoverflow.com/questions/1126989/what-future-does-the-gpu-have-in-computing}
 
 \section{OpenCL}
+OpenCL (Open Computing Language) is an open standard that defined and maintained by Khronos Group and was initially developed by Apple Inc. It is a vendor-independent framework that was from the beginning meant to enable the programmer to develop portable code that can be executed on heterogeneous platforms consisting of CPUs, GPUs and potentially other processing units like APUs or FPGAs. Thanks to that it form a real base in the age of heterogeneous computing. Currently, it has several adopters, among others Intel, AMD, NVIDIA and ARM Holdings.
 
-OpenCL (Open Computing Language) is an open
-standard defined by Khronos Group [16]. In contrast
-to the CUDA library supported mainly by NVIDIA
-it is a vendor-independent framework that enables
-the programmer to develop software that can be executed
-on heterogeneous platforms consisting of CPUs,
-GPUs and potentially other processing units like FPGAs.
+OpenCL consists of a programming language based on C99 used to write kernels. These are basic units of executable code, C-like functions that are executed on devices that support OpenCL. It also comprise of a set of APIs that are used to control kernel execution (Runtime API) and define the environment on the platform at hand (Platform Layer API). Parallel programming in kernels is supported on the level of task-based and data-based parallelism.
 
-22Kernel
-Basic unit of executable code -similar to a C function
-Data-parallel or task-parallelProgram
-Collection of kernels and other functions
-Analogous to a dynamic libraryApplications queue kernel execution instances
-Queued in-order
-Executed in-order or out-of-order
+A compatible compiler like Visual C++ compiler, gcc, Nvidia's nvcc or Intel's compiler is used to compile a collection of kernels and other supporting functions into an OpenCL Program that is executed on the GPU. This is analogous to a dynamic library in C. A device has an application queue that stores kernel execution instances in-order. The execution though might be in-order or out-of-order.
 
-Pipeline - table:
-find platform
-find device
-create context and queue
-build program
-write device buffers
-execute kernel in range
-read device buffers
+The current specification of the OpenCL API is 1.2 released November 15, 2011. However, as each of the adopters implement the standard specification on their own, the scope and support for new version varies. What can be said is that all of them guarantee a support for the version 1.1 of standard.
+
+Lots of learning materials can be found in the Internet, However, a significant sign of the maturity of some technology can be usually measured in the number of the published books available in the market. OpenCL has a few from which a book by Gaster et al. \cite{gaster2011heterogeneous} seemed to be most helpful.
+
+When it comes to the usage of OpenCL in industry, academic institutions, research labs and FPGA vendors are leading implementers. The OpenCL standard homepage\cite{khronos_opencl} specifies a number of specialized products that use OpenCL. To name some more popular customer products, latest version of Adobe Photoshop CS6 uses OpenCL to accelerate the image drawing. A use in different scope is a Winzip 16.5 that uses OpenCL to accelertate extraction and encryption of the archives.
+
+% \hyperref{c}{http://www.khronos.org/conformance/adopters/adopter-companies}
+% \hyperref{d}{http://www.khronos.org/conformance/adopters/conformant-companies}
+
+%http://developer.amd.com/zones/OpenCLZone/
+%http://software.intel.com/en-us/articles/opencl-sdk/
+%http://developer.nvidia.com/opencl
+
+% links to books
+
+% links to Photoshop, Winzip
+
+\subsection{Comparison with CUDA}
 
 \subsection{Developing OpenCL Code}
 Most of the development was done on Intel Processor and NVIDIA Geforce Card on Windows Platform. Microsoft Visual Studio 2010 IDE was used for development.
@@ -79,12 +60,14 @@ The second works only with OpenCL code on the AMD devices. Stops on breakpoints 
 In addition, there is an Intel SDK that allows for checking if the code is ready to be run on Intel platform like CPU or new 3rd generation processors with hardware graphics embedded. An offline compiler is used tor these purposes. 
 
 OpenCL Desktop Implementations
-%http://developer.amd.com/zones/OpenCLZone/
-%http://software.intel.com/en-us/articles/opencl-sdk/
-%http://developer.nvidia.com/opencl
+
 
 OpenCL Books
 
+
+Can write in C++ too.
+
+Ports to Java (JavaCL) and Python (PyOpenCL).
 
 \subsection{Profiling OpenCL Code}
 
@@ -136,6 +119,9 @@ announcement of a new directives-based parallel programming standard for acceler
 
 But the real end game for OpenACC supporters is for the directives to be incorporated into the OpenMP standard.  Since OpenACC was derived from work done within the OpenMP Working Group on Accelerators,
 
+\subsection{DirectCompute}
+enable cross-platform development
+
 \subsubsection{AMD Accelerated Parallel Processing (APP) SDK}
 formerly ATI Stream
 
@@ -160,7 +146,7 @@ Long-Term Core Roadmap
 
 
 
-\section{Current advances in NVIDIA and AMD Architectures}
+\section{Current advances in GPU Architectures}
 today we have two viable and
 competitive product lines, Nvidia and Advanced
 Micro Devices (AMD) GPUs, with support for a
@@ -168,15 +154,27 @@ wide range of programming languages.
 
 GPUs on super-computers
 
+Clusters of GPUs - HPC 500 - most fast are using the GPUs.
+
 \subsection{NVIDIA}
 \subsubsection{Tesla}
 \subsubsection{Fermi}
 \subsubsection{Kepler}
 
+\subsubsection{Cards}
+Geforce, Quadro
+Tesla for workloads where data reliability and overall performance are critical 
+
 \subsection{AMD}
 \subsubsection{APU}
 \subsubsection{GPUs}
 multicore x86
+
+
+AMD APP Acceleration 
+
+
+AMD is still pushing its OpenCL strategy for GPU computing. 
 
 \subsection{Intel}
 \subsubsection{Intel SDK for OpenCL Applications 2012}

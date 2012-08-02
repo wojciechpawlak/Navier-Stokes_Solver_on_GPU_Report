@@ -9,6 +9,24 @@ Modularity
 All code should be executed on GPU for valid comparison. 
 
 \section{Implementation}
+
+\subsection{Developing with OpenCL}
+A simplest standard OpenCL pipeline would consist of following steps:
+
+\begin{enumerate}
+\item 
+\item
+\end{enumerate}
+find platform
+find device
+create context and queue
+build program
+write device buffers
+execute kernel in range
+read device buffers
+
+
+
 Code in project is based on structure from Griebels code\cite{griebel1998numerical}. Least as possible was changed in structure as to keep it comparable with the original code.
 
 Code is written in C and OpenCL C.
