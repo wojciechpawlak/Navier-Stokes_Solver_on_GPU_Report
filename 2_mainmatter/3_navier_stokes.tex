@@ -1,11 +1,37 @@
 \chapter{Navier-Stokes Solver}
-
 \section{Computational fluid dynamics}
+Computational fluid dynamics (CFD) is a branch of fluid mechanics. It uses numerical methods and algorithms to solve and analyse problems that involve flows of fluids. Computationally-intensive calculations are performed on high performance computing platforms to simulate interactions between particles of liquids and gases with surfaces defined by boundary conditions. The more resources computing platforms has the more detailed simulation can be achieved. Until the advent of numerical scientific approach, the theoretical models could only be verified through practical experiments that were time and resource consuming and usually unrepeatable or even infeasible on larger scale. Such numerical simulations are used in many other scientific, engineering and industrial areas.
 
-\section{Description of Navier-Stokes Solver}
+\section{Discretization in CFD}
+The equations governing the fluid interaction need to be discretized before simulation, i.e. the results of these equations are only considered at a finite number of selected points. The results of these continuous equations are approximated at these points. From this follows that the more densely discretization points are spaced the more accurate the simulation of a problem is.  However, high resolution of space by discrete points is extremely demanding in terms of memory and computation time. This is where GPUs come in handy as they allow for massively parallel computations at many discretization points at one time. Varying from problem to problem, solutions to discrete problems usually require execution of many nested loops and involve time-dependencies, nonlinearites and solution of large linear systems of equations. Various methods for solving those equations that involve multigrid, multilevel and multiscale methods are researched. Adaptive methods help accurately approximate the solution of continuous problem with minimal memory requirements. Furthermore, parallelization involves dividing the problem equally between computing cores by means of domain decomposition.
 
-Reynolds number $< 1000$
+Many processes take place within different fluids. The interactions between different fluid particles as well as the forces between moving fluids and solid bodies at rest or vice versa need to be considered. A physical property of fluids known as \emph{viscosity} is the source of the occurring forces. It generates frictional forces that act on the fluid initially in motion bringing it eventually to the rest in the absence of external forces. Another property of fluids is called \emph{inertia} and specifies the resistance of any physical object to a change in its state of motion or rest. It is possible to simulate this property when a idealized layered model of fluid is assumed. Flows adhering to this idealization are called \emph{laminar flows} as opposed to \emph{turbulent flows}, which assumes that particles can mix between layers. The relative magnitude of these two properties is measured by dimensionless parameter called Reynolds number. Prandtl number is another parameter that is connect to the behaviour of fluid next to the boundary layers.  
+
+\section{Description of Navier-Stokes Equations}
+Navier-Stokes equations form a fundamental mathematical model for almost all CFD problems. They treat laminar flows of viscous, incompressible fluids.
+
+\section{Problems in CFD}
+
+
+ $< 1000$
 
 \section{Other attempts of implementing the solver}
 
 grid The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs. Many computations naturally map into grids: matrix algebra, image processing, physically based simulation, and so on.
+
+\section{Examples of CFD projects using GPUs and OpenCL}
+A lot of knowledge can be gathered just looking at other projects being implemented using given technology on given platform. As the project  The works of Bednarz et al. are worth mentioning. His team implemented Computation Fluid Dynamics solvers with OpenCL. Another similar work was done by Zaspel from research group of Griebel. He was using CUDA. Another project could be 
+
+% 2058_GTC2010
+% bednarz.pdf
+
+% A Massively Parallel Two-Phase Solver for Incompressible Fluids on Multi-GPU Clusters
+% zaspel_gpu.pdf
+% http://wissrech.ins.uni-bonn.de/people/zaspel.html
+% http://wissrech.ins.uni-bonn.de/research/pub/zaspel/preprint_gpu_griebel_zaspel_2011.pdf
+
+% http://www.turbostream-cfd.com/
+
+% http://www.par4all.org/
+
+% http://www.hpcwire.com/hpcwire/2012-07-18/researchers_squeeze_gpu_performance_from_11_big_science_apps.html?page=1
