@@ -25,15 +25,15 @@ Other companies like Intel try to catch up on them introducing their own special
 \section{OpenCL}
 OpenCL (Open Computing Language) is an open standard that defined and maintained by Khronos Group and was initially developed by Apple Inc. It is a vendor-independent framework that was from the beginning meant to enable the programmer to develop portable code that can be executed on heterogeneous platforms consisting of CPUs, GPUs and potentially other processing units like APUs or FPGAs. Thanks to that it form a real base in the age of heterogeneous computing. Currently, it has several adopters, among others Intel, AMD, NVIDIA and ARM Holdings.
 
-OpenCL consists of a programming language based on C99 used to write kernels. These are basic units of executable code, C-like functions that are executed on devices that support OpenCL. It also comprise of a set of APIs that are used to control kernel execution (Runtime API) and define the environment on the platform at hand (Platform Layer API). Parallel programming in kernels is supported on the level of task-based and data-based parallelism.
+OpenCL consists of a programming language based on C99 used to write kernels. These are basic units of executable code, C-like functions that are executed on devices that support OpenCL. It also comprise of a set of APIs. Runtime API is used to control kernel execution and manage the scheduling, computation and the memory resources. The Platform Layer API defines the environment called a context on the platform at hand and creates a hardware abstraction layer over diverse computational resources. Parallel programming in kernels is supported on the level of task-based and data-based parallelism.
 
-A compatible compiler like Visual C++ compiler, gcc, Nvidia's nvcc or Intel's compiler is used to compile a collection of kernels and other supporting functions into an OpenCL Program that is executed on the GPU. This is analogous to a dynamic library in C. A device has an application queue that stores kernel execution instances in-order. The execution though might be in-order or out-of-order.
+A compatible compiler like Visual C++ compiler, gcc, Nvidia's nvcc or Intel's compiler is used to compile a collection of kernels and other supporting functions into an OpenCL Program that is executed on the GPU. This is analogous to a dynamic library in C. An application has a queue that stores kernel execution instances in-order. The execution though might be in-order or out-of-order. The most basic unit of work on an OpenCL device is called a work item.
 
-The current specification of the OpenCL API is 1.2 released November 15, 2011. However, as each of the adopters implement the standard specification on their own, the scope and support for new version varies. What can be said is that all of them guarantee a support for the version 1.1 of standard.
+As OpenCL matures, lots of learning materials can be found in the Internet. In addition, there are numerous courses held at universities all over the world that choose OpenCL as a technology for teaching High Performance Scientific Computing. However, a significant sign of the maturity of some technology can be usually measured in the number of the published books available in the market. OpenCL has a few from which a book by Gaster et al. \cite{gaster2011heterogeneous} seemed to be most helpful.
 
-Lots of learning materials can be found in the Internet, However, a significant sign of the maturity of some technology can be usually measured in the number of the published books available in the market. OpenCL has a few from which a book by Gaster et al. \cite{gaster2011heterogeneous} seemed to be most helpful.
+When it comes to the usage of OpenCL in industry, academic institutions, research labs and FPGA vendors are leading implementers. The OpenCL standard homepage\cite{khronos_opencl} specifies a number of specialized products that use OpenCL. To name some more popular customer products, latest version of Adobe Photoshop CS6 uses OpenCL to accelerate the image drawing. A different usage is a Winzip 16.5 that uses OpenCL to accelerate extraction and encryption of the archives. An interesting use of OpenCL is an OpenCL Studio.
 
-When it comes to the usage of OpenCL in industry, academic institutions, research labs and FPGA vendors are leading implementers. The OpenCL standard homepage\cite{khronos_opencl} specifies a number of specialized products that use OpenCL. To name some more popular customer products, latest version of Adobe Photoshop CS6 uses OpenCL to accelerate the image drawing. A use in different scope is a Winzip 16.5 that uses OpenCL to accelertate extraction and encryption of the archives.
+
 
 % \hyperref{c}{http://www.khronos.org/conformance/adopters/adopter-companies}
 % \hyperref{d}{http://www.khronos.org/conformance/adopters/conformant-companies}
@@ -42,61 +42,42 @@ When it comes to the usage of OpenCL in industry, academic institutions, researc
 %http://software.intel.com/en-us/articles/opencl-sdk/
 %http://developer.nvidia.com/opencl
 
+% link to OpenCL overview
+
 % links to books
 
 % links to Photoshop, Winzip
 
+% \hyperref[OpenCLStudio]{http://www.youtube.com/user/OpenCLStudio}
+
+\subsection{Current specification}
+The current specification of the OpenCL API is 1.2 released November 15, 2011. However, as each of the adopters implement the standard specification on their own, the scope and support for new version varies. What can be said is that all of them guarantee a support for the version 1.1 of standard. However, some of them like AMD competes to adopt new standard as it introduces some valaubale improvements to the OpenCL programming model. In particular, subdevice abstraction provides ways to partition a device into parts that can be treated as seperate device could in 1.1. Partitioning of devices gives more control over assignment of computation to compute units. Furthermore, custom devices and built-in kernels address the problem with embedded platforms like specialized FPGAs or non-programmable hardware with associated firmware (e.g. video encoder/decoders or DSPs). These cannot support OpenCL C directly, so built-in kernels can represent these hardware and firmware capabilities. Development closer to GPU touched the Image format of memory resources.
+
+
+% overview.pdf
+% http://www.khronos.org/news/press/khronos-releases-opencl-1.2-specification
+
 \subsection{Comparison with CUDA}
-
-\subsection{Developing OpenCL Code}
-Most of the development was done on Intel Processor and NVIDIA Geforce Card on Windows Platform. Microsoft Visual Studio 2010 IDE was used for development.
-
-The largest problem during GPU programming is lack of debugging options. The choice of debugger is dependant on the platform used. Some combinations will then be not supported. It was the case during the development process for this project as NVIDIA card was combined with OpenCL technology.  Two working options for debugging found: NVIDIA Nsight (currently in version 4.2) and AMD gDEBugger (currently in version 6.2).
-
-First supports CUDA code only. The tool is an application in a client-server architecture.  The Visual Studio Plugin serves as a client to the Monitor client process run on the machine. This allows for remote access to GPUs. Moreover, the breakpoints can be set inside the CUDA kernel code and the current state of local variables, warps and working items will be presented. This valuable data is available through a set of info windows. Warps can be observed. Tool does not work with OpenCL code though. It is not possible to set breakpoints in OpenCL code. Tool is distributed as a plugin to Visual Studio 2010.
-
-The second works only with OpenCL code on the AMD devices. Stops on breakpoints on host. Can be asked to stop on specific OpenCL functions. Offers function call history an function properties. There is also an explorer where OpenCL constructs are presented in a tree structure.
-
-In addition, there is an Intel SDK that allows for checking if the code is ready to be run on Intel platform like CPU or new 3rd generation processors with hardware graphics embedded. An offline compiler is used tor these purposes. 
-
-OpenCL Desktop Implementations
-
-
-OpenCL Books
-
-
-Can write in C++ too.
-
-Ports to Java (JavaCL) and Python (PyOpenCL).
-
-\subsection{Profiling OpenCL Code}
-
-Nsight Profiler
-
-AMD gDEBugger
-
-\subsection{Differences to CUDA}
-
-% \hyperref{}{http://www.hpcwire.com/hpcwire/2012-02-28/opencl_gains_ground_on_cuda.html}
 
 
 Multiple comparisons have been drawn between CUDA and OpenCL since its inception.[59][60] They both draw the same conclusions: if the OpenCL implementation is correctly tweaked to suit the target architecture, it performs no worse than CUDA. Because the key feature of OpenCL is portability (via its abstracted memory and execution model), the programmer is not able to directly use GPU-specific technologies, unlike CUDA. CUDA is more acutely aware of the platform upon which it will be executing because it is limited to Nvidia hardware, and therefore, it provides more mature compiler optimisations and execution techniques. Furthermore, the CUDA compiler displayed more mature compilation techniques, such as more aggressive pragma unroll addition to loops. Therefore, the developer is required to add in the optimisations manually to the kernel code. This is indicative of the maturity of the CUDA toolkit versus the newer OpenCL toolkits. It is likely in the future that this gap will be closed as the toolchains mature.
 
-\section{Previous research}
+% \hyperref{}{http://www.hpcwire.com/hpcwire/2012-02-28/opencl_gains_ground_on_cuda.html}
 
+\subsection{WebCL}
+Bringing parallel computation to the Web through JavaScript binding to OpenCL
+On 17 April 2012 Khronos released a WebCL working draft[
 
+\subsection{Future developments}
+OpenCL-HLM
 
-\section{Recent developments in CUDA and OpenCL}
-\subsection{OpenCL}
+OpenCL-SPIR
 
-What applications use OpenCL GPU-acceleration?
-OpenCL in Photoshop CS6
-WinZip 16.5
+Long-Term Core Roadmap
 
-OpenCL Studio
+%From opencl-overview.pdf last slide
 
-% \hyperref[OpenCLStudio]{http://www.youtube.com/user/OpenCLStudio}
-
+\section{Other GPGPU Technologies}
 \subsection{CUDA}
 
 4.2
@@ -104,12 +85,14 @@ OpenCL Studio
 In Decemeber, NVIDIA made its nvcc compiler open.
 % \hyperref{e}{http://www.hpcwire.com/hpcwire/2012-01-26/nvidia_releases_upgraded_cuda_compiler,_visual_profiler,_and_npp_library.html}
 
-\subsection{Other Technologies}
-\subsubsection{C++ AMP (C++ Accelerated Massive Parallelism)}
+\subsection{DirectCompute}
+enable cross-platform development
+
+\subsection{C++ AMP (C++ Accelerated Massive Parallelism)}
 
 % \hyperref[C++ AMP MSDN}{http://msdn.microsoft.com/en-us/library/hh265137}
 
-\subsubsection{OpenACC}
+\subsection{OpenACC}
 Directives like OpenMP for multicore CPU programming
 
 announcement of a new directives-based parallel programming standard for accelerators.  Called OpenACC, the open standard is intended to bring GPU computing into the realm of the average programmer, while making the resulting code portable across other accelerators and even multicore CPUs
@@ -119,30 +102,14 @@ announcement of a new directives-based parallel programming standard for acceler
 
 But the real end game for OpenACC supporters is for the directives to be incorporated into the OpenMP standard.  Since OpenACC was derived from work done within the OpenMP Working Group on Accelerators,
 
-\subsection{DirectCompute}
-enable cross-platform development
+\subsection{OpemHMPP}
 
-\subsubsection{AMD Accelerated Parallel Processing (APP) SDK}
+\subsection{AMD Accelerated Parallel Processing (APP) SDK}
 formerly ATI Stream
 
 % \hyperref[AMD 1]{http://developer.amd.com/sdks/AMDAPPSDK/Pages/default.aspx}
-
 % \hyperref[AMD 2]{http://www.amd.com/us/products/technologies/amd-app/Pages/eyespeed.aspx}
 
-
-
-
-\subsection{WebCL}
-Bringin parallel compuataion to the Web through JavaScript binding to OpenCL
-
-\subsection{Other}
-%From opencl-overview.pdf last slide
-
-OpenCL-HLM
-
-OpenCL-SPIR
-
-Long-Term Core Roadmap
 
 
 
@@ -161,15 +128,16 @@ Clusters of GPUs - HPC 500 - most fast are using the GPUs.
 \subsubsection{Fermi}
 \subsubsection{Kepler}
 
-\subsubsection{Cards}
+\subsubsection{Customer Cards}
 Geforce, Quadro
 Tesla for workloads where data reliability and overall performance are critical 
 
 \subsection{AMD}
-\subsubsection{APU}
+\subsubsection{APUs}
 \subsubsection{GPUs}
 multicore x86
 
+Radeon
 
 AMD APP Acceleration 
 
@@ -180,3 +148,35 @@ AMD is still pushing its OpenCL strategy for GPU computing.
 \subsubsection{Intel SDK for OpenCL Applications 2012}
 
 Intel's upcoming Many Integrated Core (MIC) coprocessor, Intel MIC
+
+
+
+
+
+\section{Developing OpenCL Code}
+Most of the development was done on Intel Processor and NVIDIA Geforce Card on Windows Platform. Microsoft Visual Studio 2010 IDE was used for development.
+
+The largest problem during GPU programming is lack of debugging options. The choice of debugger is dependant on the platform used. Some combinations will then be not supported. It was the case during the development process for this project as NVIDIA card was combined with OpenCL technology.  Two working options for debugging found: NVIDIA Nsight (currently in version 4.2) and AMD gDEBugger (currently in version 6.2).
+
+First supports CUDA code only. The tool is an application in a client-server architecture.  The Visual Studio Plugin serves as a client to the Monitor client process run on the machine. This allows for remote access to GPUs. Moreover, the breakpoints can be set inside the CUDA kernel code and the current state of local variables, warps and working items will be presented. This valuable data is available through a set of info windows. Warps can be observed. Tool does not work with OpenCL code though. It is not possible to set breakpoints in OpenCL code. Tool is distributed as a plugin to Visual Studio 2010.
+
+The second works only with OpenCL code on the AMD devices. Stops on breakpoints on host. Can be asked to stop on specific OpenCL functions. Offers function call history an function properties. There is also an explorer where OpenCL constructs are presented in a tree structure.
+
+In addition, there is an Intel SDK that allows for checking if the code is ready to be run on Intel platform like CPU or new 3rd generation processors with hardware graphics embedded. An offline compiler is used tor these purposes. 
+
+OpenCL Desktop Implementations
+
+
+OpenCL Books
+
+
+Development on higher level of abstraction is possible through C++ wrapper API. This was not tried in this project.
+
+There are ports in form of wrappers to popular programming languages like Java (JavaCL) or Python (PyOpenCL).
+
+\section{Profiling OpenCL Code}
+Because most of the development process for this project was done on the NVIDIA platform, some of its tools like NVIDIA Visual Profiler 4.2 or NVIDIA Nsight Profiler Visual Studio Edition 2.2 were researched. The latter can only be used with CUDA code, so it was useless for this project. The Visual Profiler was the only program that proved to be helpful as it provided detailed statistics about metrics and events of the application execution. Furthermore, it provides a timeline graph where memory transfers and kernel computations are marked in time. Finally, analysis results provide guidelines that programmer can use to optimize the code. This tool is distributed as part of CUDA Toolkit as of version 4.2. 
+Another helpful resource provided by NVIDIA is its CUDA GPU Occupancy Calculator Spreadsheet that allow easy calculation of multiprocessor occupancy of a GPU by a given CUDA kernel. This can be used to optimize OpenCL kernels on NVIDIA platform.
+
+Another profiling tools from the competitor AMD are AMD APP Profiler and AMD KernelAnalyzer. Gaster et al. in their book\cite{gaster2011heterogeneous} provide an overview and step-by-step description of how to use this tool. These tools were not used during this project, because the code was not developed on the AMD platform. This is an obvious requirement while using these tools. Tools are available for free in the AMD Developer Zone.
+
