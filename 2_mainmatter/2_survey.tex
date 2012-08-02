@@ -31,9 +31,10 @@ A compatible compiler like Visual C++ compiler, gcc, Nvidia's nvcc or Intel's co
 
 As OpenCL matures, lots of learning materials can be found in the Internet. In addition, there are numerous courses held at universities all over the world that choose OpenCL as a technology for teaching High Performance Scientific Computing. However, a significant sign of the maturity of some technology can be usually measured in the number of the published books available in the market. OpenCL has a few from which a book by Gaster et al. \cite{gaster2011heterogeneous} seemed to be most helpful.
 
-When it comes to the usage of OpenCL in industry, academic institutions, research labs and FPGA vendors are leading implementers. The OpenCL standard homepage\cite{khronos_opencl} specifies a number of specialized products that use OpenCL. To name some more popular customer products, latest version of Adobe Photoshop CS6 uses OpenCL to accelerate the image drawing. A different usage is a Winzip 16.5 that uses OpenCL to accelerate extraction and encryption of the archives. An interesting use of OpenCL is an OpenCL Studio.
+When it comes to the usage of OpenCL in industry, academic institutions, research labs and FPGA vendors are leading implementers. The OpenCL standard homepage\cite{khronos_opencl} specifies a number of specialized products that use OpenCL. To name some more popular customer products, latest version of Adobe Photoshop CS6 uses OpenCL to accelerate the image operation features including Blur Gallery, Liquify, and Oil Paint. A different usage is a Winzip 16.5 that uses OpenCL to accelerate extraction and compression of the archives with AES encryption. Yet another software that use  OpenCL API are GPU-enhanced functions in Wolfram Mathematica. A tool worth-mentioning is also OpenCL Studio, that integrates OpenCL and OpenGL into a single development environment for high performance computing and visualization. Kishonti Informatics implemented and CLBenchmark for measuring and comparing the processing power of different hardware architectures that use OpenCL 1.1.
 
 
+There are different OpenCL Desktop Implementations by NVIDIA, AMD and Intel. NVIDIA supports OpenCL through CUDA SDK. CUDA toolchain provides limited support for compilation and profiling OpenCL code. AMD supports the programmers with its AMD APP SDK to allow for development on their platform. AMD APP (Accelerated Parallel Processing) SDK, formerly ATI Stream, is the OpenCL library for AMD graphics cards. It also provides Math Libraries, gDEBugger, APP Profiler and KernelAnalyzer. Intel supports OpenCL through its own Intel SDK for OpenCL Applications 2012 released recently. 
 
 % \hyperref{c}{http://www.khronos.org/conformance/adopters/adopter-companies}
 % \hyperref{d}{http://www.khronos.org/conformance/adopters/conformant-companies}
@@ -43,60 +44,37 @@ When it comes to the usage of OpenCL in industry, academic institutions, researc
 % links to books
 
 % links to Photoshop, Winzip
+% http://developer.amd.com/sdks/AMDAPPSDK/samples/showcase/Pages/default.aspx
 
-% \hyperref[OpenCLStudio]{http://www.youtube.com/user/OpenCLStudio}
+% \hyperref[OpenCLStudio]{http://www.opencldev.com/}
+% https://clbenchmark.com/
 % http://blogs.adobe.com/premiereprotraining/2012/05/opencl-and-premiere-pro-cs6.html
+
+% http://developer.nvidia.com/opencl
+% http://developer.amd.com/zones/OpenCLZone/
+% \hyperref[AMD 1]{http://developer.amd.com/sdks/AMDAPPSDK/Pages/default.aspx}
+%http://software.intel.com/en-us/articles/opencl-sdk/
 
 \subsection{Current specification}
 The current specification of the OpenCL API is 1.2 released on 15 November 2011. However, as each of the adopters implement the standard specification on their own, the scope and support for new version varies. What can be said is that all of them guarantee a support for the version 1.1 of standard. However, some of them like AMD competes to adopt new standard as it introduces some valaubale improvements to the OpenCL programming model. In particular, subdevice abstraction provides ways to partition a device into parts that can be treated as seperate device could in 1.1. Partitioning of devices gives more control over assignment of computation to compute units. Furthermore, custom devices and built-in kernels address the problem with embedded platforms like specialized FPGAs or non-programmable hardware with associated firmware (e.g. video encoder/decoders or DSPs). These cannot support OpenCL C directly, so built-in kernels can represent these hardware and firmware capabilities. Development closer to GPU touched the Image format of memory resources.
 
-
-
 % overview.pdf
 % http://www.khronos.org/news/press/khronos-releases-opencl-1.2-specification
-
-\subsection{OpenCL SDKs}
-%Even NVIDIA and Intel are hedging their bets with OpenCL though, with both vendors offering software hooks for their respective hardware. Alhough both Intel and nVidia have signed on to openCL and both of them technically support it, the performance benefits that they offer are pretty poor when compared to AMD's APUs and GPUs.
-
-% The only downside to OpenCL is that, like OpenGL, because everyone gets to have their say in it's development, it literally gets "designed by committee" and as a result, you have everyone trying to introduce shit that's good for them into it, and block stuff that's good for others, even if it's not explicitly bad for them.
-
-There are different OpenCL Desktop Implementations by NVIDIA, AMD and Intel. Intel supports OpenCL thorugh its own Intel SDK for OpenCL Applications 2012 released recently. So does AMD through its APP SDK. NVIDIA supports OpenCL through CUDA SDK.
-
-AMD is supporting the OpenCL the most.
-
-
-\subsubsection{CUDA SDK}
-
-%http://developer.nvidia.com/opencl
-
-
-\subsection{AMD APP SDK}
-AMD APP (Accelerated Parallel Processing) SDK, formerly ATI Stream, is the OpenCL library for AMD graphics cards.
-
-%http://developer.amd.com/zones/OpenCLZone/
-% \hyperref[AMD 1]{http://developer.amd.com/sdks/AMDAPPSDK/Pages/default.aspx}
-% \hyperref[AMD 2]{http://www.amd.com/us/products/technologies/amd-app/Pages/eyespeed.aspx}
-
-\subsubsection{Intel SDK}
-
-
-%http://software.intel.com/en-us/articles/opencl-sdk/
-
 
 \subsection{Comparison with CUDA}
 Comparisons between CUDA and OpenCL are inevitable. Both provide a general-purpose model for data parallelism and low-level access to hardware. Although OpenCL 1.0 was introduced in December 2008, a year and a half after the NVIDIA launched first CUDA, OpenCL still trails CUDA in popularity by a wide margin, especially with regard to HPC. However, it is said that if the OpenCL implementation is correctly tweaked to suit the target architecture, it should not perform worse than CUDA. The key feature of OpenCL is its portability as the memory and execution model are abstracted. That limits the optimization of OpenCL code. In CUDA, programmer can directly use GPU-specific technologies, due to the fact it is limited to NVIDIA hardware. Thanks to that CUDA provides more mature compiler optimisations and execution techniques such as more aggressive pragma unroll addition to loops. In OpenCL, programmer is required to add in the optimisations manually. However, as OpenCL toolkit matures differences between these two technologies will vanish.
 
-Another point is that there is already a number of libraries supported on CUDA like CUBLAS, CUFFT or CUSPARSE. In comparison, OpenCL still lack high quality, open libraries, although there are recent developments such as ViennaCL that are a symptom that the situation might change in the nearest future.
+Another point is that there is already a number of libraries supported on CUDA like CUBLAS, CUFFT or CUSPARSE. In comparison, OpenCL still lack high quality, open libraries, although there are recent developments such as open-source ViennaCL, AMD's clAmdBlas or clAmdFft libraries (or proprietary AccelerEyes ArrayFire for faster C, C++, Fortran, Python code that uses ArrayFire OpenCL API) that are a symptom that the situation might change in the nearest future. Moreove, ArrayFire made a comparison between two technologies.
 
 % \hyperref{}{http://www.hpcwire.com/hpcwire/2012-02-28/opencl_gains_ground_on_cuda.html}
 % http://viennacl.sourceforge.net/
-
+% http://blog.accelereyes.com/blog/2012/02/17/opencl_vs_cuda_webinar_recap/
 
 \subsection{WebCL}
 WebCL is a set of JavaScript binding to OpenCL that allows for parallel computation in web applications. JavaScript was never designed to exploit the multithreaded data-parallel computing capabilities available on GPUs. On 17 April 2012 Khronos Group released a WebCL working draft and the standard lack any serious implementation or support.
 
 \subsection{Future developments}
-Khronos Group Representatives in its presentations talk among other about OpenCL-HLM, high-level programming model that would introduce new language syntax to unify the host and device execution in order to increase usability and possibilities of optimization. At the same time, OpenCL-SPIR that stands for Standard Parallel Intermediate Representation aims to explore ways to provide target back-end for alternative high-level languages. It also says that Long-Term Core Roadmap is to \enquote{explore enhanced memory and execution model flexibility to catalyse and expose emerging hardware capabilities}. Furthermore, it might be true that OpenCL needs a vendor that will boost its standardization, adaptation and marketing process as NVIDIA does for CUDA. AMD has a chance to take this part as they decided to support an open standard OpenCL instead of introducing their own technology.
+Khronos Group Representatives in its presentations talk among other about OpenCL-HLM, high-level programming model that would introduce new language syntax to unify the host and device execution in order to increase usability and possibilities of optimization. At the same time, OpenCL-SPIR that stands for Standard Parallel Intermediate Representation aims to explore ways to provide target back-end for alternative high-level languages. It also says that Long-Term Core Roadmap is to \enquote{explore enhanced memory and execution model flexibility to catalyse and expose emerging hardware capabilities}. Furthermore, it might be true that OpenCL needs a vendor that will boost its standardization, adaptation and marketing process as NVIDIA does for CUDA. AMD has a chance to take this part as they decided to support an open standard OpenCL instead of introducing their own technology. On one hand NVIDIA and Intel provide software handles to OpenCL for their respective hardware. On the other hand, altough both Intel and NVIDIA have signed on to OpenCL standard committee and so both technically support it, the performance benefits that they offer are pretty poor when compared to AMD's APUs and GPUs. Another downside to OpenCL, similar to the one with OpenGL, is that everyone in the standardization committee has a say in development of a standard. As a consequence that may lead to conflicts and blocking ideas that are another cause of slow progression of OpenCL development in future.
 
 %From opencl-overview.pdf last slide
 
@@ -123,7 +101,7 @@ C++ AMP (Accelerated Massive Parallelism) is meant to accelerate the C++ code by
 Microsoft DirectCompute is an API that supports GPGPU programming on Windows platform. It is a compute shader, a programmable shader stage that expands Microsoft Direct3D 11, a part of Microsoft DirectX 11 API, beyond graphics programming. DirectCompute shares a range of computational interfaces  with OpenCL and CUDA. DirectCompute is programmed by a language which is similar to HLSL that is a DirectX shader language.
 
 \subsection{OpenHMPP}
-Another example of a set of OpenMP-like directives that preserve legacy codes is OpenHMPP (Hybrid Multicore Parallel Programming), a programming standard for heterogeneous computing. The software is independent from hardware , thus ready for future architectures. The directive-based model is based on works by CAPS (Compiler and Architecture for Embedded and Superscalar Processors). The main concept are the codelets, that are functions that are executed remotely on hardware. HMPP provides synchronous and asynchronous RPC. Like in OpenCL Memory model there are two address spaces: the host processor one and the HWA memory.
+Another example of a set of OpenMP-like directives that preserve legacy codes is OpenHMPP (Hybrid Multicore Parallel Programming), a programming standard for heterogeneous computing. The software is independent from hardwar , thus ready for future architectures. The directive-based model is based on works by CAPS (Compiler and Architecture for Embedded and Superscalar Processors) called HMPP. The main concept are the codelets, that are functions that are executed remotely on hardware. HMPP provides synchronous and asynchronous RPC. Like in OpenCL Memory model there are two address spaces: the host processor one and the HWA memory.
 
 % http://www.openhmpp.org/en/OpenHMPPConsortium.aspx
 % http://www.caps-entreprise.com/fr/page/index.php?id=49&p_p=36
@@ -170,9 +148,22 @@ Intel, main CPU vendor, is going to release its Many Integrated Core (MIC) archi
 % http://www.itproportal.com/2012/08/01/a-close-look-at-xeon-phi-intels-50-core-beast/
 % http://software.intel.com/en-us/articles/vcsource-tools-opencl-sdk/
 
-\section{Examples of research projects using OpenCL on GPU}
-A lot of knowledge can be gathered just looking at other projects being implemented using given technology on given platform. 
+\section{Examples of research projects using GPUs and OpenCL}
+A lot of knowledge can be gathered just looking at other projects being implemented using given technology on given platform. As the project  The works of Bednarz et al. are worth mentioning. His team implemented Computation Fluid Dynamics solvers with OpenCL. Another similar work was done by Zaspel from research group of Griebel. He was using CUDA. Another project could be 
 
+% 2058_GTC2010
+% bednarz.pdf
+
+% A Massively Parallel Two-Phase Solver for Incompressible Fluids on Multi-GPU Clusters
+% zaspel_gpu.pdf
+% http://wissrech.ins.uni-bonn.de/people/zaspel.html
+% http://wissrech.ins.uni-bonn.de/research/pub/zaspel/preprint_gpu_griebel_zaspel_2011.pdf
+
+% http://www.turbostream-cfd.com/
+
+% http://www.par4all.org/
+
+% http://www.hpcwire.com/hpcwire/2012-07-18/researchers_squeeze_gpu_performance_from_11_big_science_apps.html?page=1
 
 
 \section{Experiences with OpenCL}
@@ -188,6 +179,8 @@ The later works only with OpenCL code, but supports only the AMD devices. Howeve
 On the side, there is an Intel SDK that allows for checking if the code is ready to be run on Intel platform like CPU or new 3rd generation processors with hardware graphics embedded. An offline OpenCL compiler can be used to check the validity of kernel code. 
 
 Development on higher level of abstraction is possible through C++ wrapper API. However, this was not attempted in this project. Moreover, OpenCL API is ported in form of wrappers to popular programming languages like Java (JavaCL) or Python (PyOpenCL). Such projects surely will advance a wide adoption of OpenCL standard. 
+
+% opencl-cplusplus-1.1
 
 \subsection{Profiling OpenCL Code}
 Because most of the development process for this project was done on the NVIDIA platform, some of its tools like NVIDIA Visual Profiler 4.2 or NVIDIA Nsight Profiler Visual Studio Edition 2.2 were researched. The latter can only be used with CUDA code, so it was useless for this project. The Visual Profiler was the only program that proved to be helpful as it provided detailed statistics about metrics and events of the application execution. Furthermore, it provides a timeline graph where memory transfers and kernel computations are marked in time. Finally, analysis results provide guidelines that programmer can use to optimize the code. This tool is distributed as part of CUDA Toolkit as of version 4.2. 
