@@ -67,26 +67,23 @@ AMD is supporting the OpenCL the most.
 \subsection{Comparison with CUDA}
 Comparisons between CUDA and OpenCL are inevitable. Both provide a general-purpose model for data parallelism and low-level access to hardware. It is said that if the OpenCL implementation is correctly tweaked to suit the target architecture, it should not perform worse than CUDA. The key feature of OpenCL is its portability as the memory and execution model are abstracted. That limits the optimization of OpenCL code. In CUDA, programmer can directly use GPU-specific technologies, due to the fact it is limited to NVIDIA hardware. Thanks to that CUDA provides more mature compiler optimisations and execution techniques such as more aggressive pragma unroll addition to loops. In OpenCL, programmer is required to add in the optimisations manually. However, as OpenCL toolkit matures differences between these two technologies will vanish.
 
+Another point is that there is already a number of libraries supported on CUDA like CUBLAS, CUFFT or CUSPARSE. In comparison, OpenCL still lack high quality, open libraries, although there are recent developments such as ViennaCL that are a symptom that the situation might change in the nearest future.
+
 % \hyperref{}{http://www.hpcwire.com/hpcwire/2012-02-28/opencl_gains_ground_on_cuda.html}
+% http://viennacl.sourceforge.net/
+
 
 \subsection{WebCL}
-WebCL is a set of JavaScript binding to OpenCL that allows for parallel computation in web applications. JavaScript was never designed to exploit the multithreaded data-parallel computing capabilities available on GPUs. On 17 April 2012 Khronos Group released a WebCL working draft.
+WebCL is a set of JavaScript binding to OpenCL that allows for parallel computation in web applications. JavaScript was never designed to exploit the multithreaded data-parallel computing capabilities available on GPUs. On 17 April 2012 Khronos Group released a WebCL working draft and the standard lack any serious implementation or support.
 
 \subsection{Future developments}
-OpenCL-HLM
-
-OpenCL-SPIR
-
-Long-Term Core Roadmap
+Khronos Group Representatives in its presentations talk among other about OpenCL-HLM, high-level programming model that would introduce new language syntax to unify the host and device execution in order to increase usability and possibilities of optimization. At the same time, OpenCL-SPIR that stands for Standard Parallel Intermediate Representation aims to explore ways to provide target back-end for alternative high-level languages. It also says that Long-Term Core Roadmap is to \enquote{explore enhanced memory and execution model flexibility to catalyse and expose emerging hardware capabilities}. Furthermore, it might be true that OpenCL needs a vendor that will boost its standardization, adaptation and marketing process as NVIDIA does for CUDA. AMD has a chance to take this part as they decided to support an open standard OpenCL instead of introducing their own technology.
 
 %From opencl-overview.pdf last slide
 
 \section{Other GPGPU Technologies}
 \subsection{CUDA}
-
-4.2
-
-In Decemeber, NVIDIA made its nvcc compiler open.
+The current version of NVIDIA's technology is 4.2. CUDA has a rich support from its vendor and is well adapted through out the industry. It has a highly-optimized libraries and rich toolchain. Checking Compute Capability of NVIDIA cards is the way to measure the advance of CUDA platform. Currently latest version is 3.0, which is implemented in latest Kepler GPUs that went into market earlier this year. In Decemeber last year NVIDIA made its nvcc compiler open-source that might be seen as movement towards open standard. CUDA has bindings to all the most popular programming languages.
 % \hyperref{e}{http://www.hpcwire.com/hpcwire/2012-01-26/nvidia_releases_upgraded_cuda_compiler,_visual_profiler,_and_npp_library.html}
 
 \subsection{DirectCompute}
@@ -126,38 +123,37 @@ As mentioned already, today we have two main viable and competitive GPU product 
 
 \subsection{NVIDIA}
 \subsubsection{Fermi}
+GeForce 400 and 500 series cards were the ones, where completely-rebuilt Fermi architecture was introduced. \enquote{The GPU featured up to 512 CUDA cores organized in 16 streaming multiprocessors of 32 cores each. It has six 64-bit memory partitions, for a 384-bit memory interface, supporting up to a total of 6 GB of GDDR5 DRAM
+memory}. With this iteration NVIDIA started to support Visual Studio and C++.
+
+% Fermi whitepaper
 
 \subsubsection{Tesla}
-The main difference between Fermi-based Tesla cards and the GeForce 500 (also Fermi) series is the unlocked double-precision floating-point performance. This is why these cards are targeted to high performance markets, where floating-point calculations on large scale are performed. It is said 1/2 of peak single-precision floating point performance in Tesla cards compared to 1/8 for GeForce cards. In addition, the Tesla cards have ECC-protected memory and are available in models with higher on-board memory (up to 6GB).
+The main difference between Fermi-based Tesla cards and the GeForce 500 (also Fermi) series is the unlocked double-precision floating-point performance. This is why these cards are targeted to high performance markets, where floating-point calculations on large scale are performed. It is said 1/2 of peak single-precision floating point performance in Tesla cards compared to 1/8 for GeForce cards. In addition, the Tesla cards have ECC-protected memory and are available in models with higher on-board memory (up to 6GB). So this why Tesla is for workloads where data reliability and overall performance are critical.
 
 \subsubsection{Kepler}
-Currently NVIDIA is Kepler.
+Earlier this year NVIDIA has shipped cards with Kepler architecture. It also ships a family of TESLA GPUs based on the this architecture. Dynamic Parallelism is the most significant development that allows for regions of computation to be dynamically adjusted. It is based on the idea that the calculations are more fain grained in highly computational regions in excess of more coarse calculations in regions of the grid where there is not much computation involved. Moreover, Cuda 5 parallel programming model is planned to be widely available in the third quarter of 2012 on these GPUs.
 
-
-
-\subsubsection{Customer Cards}
-Geforce, Quadro
-Tesla for workloads where data reliability and overall performance are critical 
-
-
+% figure
+% Kepler whitepaper
+% http://www.hpcwire.com/hpcwire/2012-05-15/nvidia_launches_kepler_into_hpc.html
+% http://insidehpc.com/2012/05/15/nvidias-kepler-pushes-parallelism-up-to-eleven/
 
 \subsection{AMD}
 
 \subsubsection{APUs}
+APU stands for Accelerated Processing Unit and is a processing system with additional processing capabilities to accelrate given types of computations outsie of a CPU. They may embed a GPGPU, an FPGA or other specialized unit. AMD Fusion is a series of AMD's APUs. What might be interesting from perspective of a GPU programmer is that GPU in such chipset can access host CPU memory without going through a device driver as the memory will have a unified memory controller for both CPU and GPU. Current APUs support OpenCL in version 1.1, although AMD announced on its homepage AMD Accelerated Parallel Processing (APP) SDK with OpenCL 1.2 Support targeting APUs. It can be seen in introduction of Hetereogeneous Systems Architecture (HSA) that promises higher facilitation of OpenCL, CPU-GPU seamless cooperation and immediate port to AMD APUs.
 
 \subsubsection{GPUs}
-multicore x86
+The latest GPUs by AMD are Northern Islands (HD 6xxx) series and Southern Islands (HD 7xxx) series. Some of the former and all the latter support OpenCL's latest specification, what is another argument for that AMD conentrates on support for OpenCL. The achitectures used are VLIW4, VLIW5 and GCN. More detailed overview of these architectures is enclosed in \cite{nielsen2012}. The most recent of workstation-oriented GPUs are FirePro cards announced recently. Surprisingly they do not support OpenCL even in 1.1 version. However, AMD in general seems to push its OpenCL strategy for GPU computing.
 
-Radeon
-
-AMD APP Acceleration 
-
-AMD is still pushing its OpenCL strategy for GPU computing. 
+% http://blogs.amd.com/developer/2012/07/10/hsa-%E2%80%93-a-boon-for-opencl%E2%84%A2-and-heterogeneous-compute-in-general/
 
 \subsection{Intel}
-Intel's upcoming Many Integrated Core (MIC) coprocessor, Intel MIC
+Intel, main CPU vendor, is going to release its Many Integrated Core (MIC) architecture for commercial use later this year. It is codenamed Knights Corner and the branding name for this processor will be Intel Xeon Phi. The project incorporates earlier work on Larrabee many core architecture. It will allow for floating point operations on 512-bit SIMD vector registers. Intel wants to leverage x86 legacy and provide architecture that can utilise existing parallelization software tools, among others OpenCL. It is a direct competitor for NVIDIA Tesla in HPC market. Another of Intel's products is released earlier this year 3rd generation Intel Core with Intel HD Graphics, that can be seen as an example of Intel's APU. It can be programmed with OpenCL through recently published Intel SDK for OpenCL Applications 2012.
 
-
+% http://www.intel.com/content/www/us/en/architecture-and-technology/many-integrated-core/intel-many-integrated-core-architecture.html
+% http://software.intel.com/en-us/articles/vcsource-tools-opencl-sdk/
 
 \section{Examples of research projects using OpenCL on GPU}
 A lot of knowledge can be gathered just looking at other projects being implemented using given technology on given platform. Although OpenCL 1.0 was introduced in December 2008, a year and a half after the NVIDIA launched first CUDA, OpenCL still trails CUDA in popularity by a wide margin, especially with regard to HPC. 
