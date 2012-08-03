@@ -24,3 +24,5 @@
 *.nlo
 *.out
 *.synctex.gz
+
+*.db
