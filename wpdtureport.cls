@@ -60,13 +60,13 @@
 \RequirePackage{multirow} % Columns spanning multiple rows
 
 % Bookmarks for sections and lists and turns references and urls into links
-\RequirePackage[backref]{hyperref} % backreferencing turned on
+\RequirePackage{hyperref} % backreferencing turned on
 
 % Sourcecode listings
 \RequirePackage{listings} 
 
 % Bibliography
-%\RequirePackage[square]{natbib} % extension to Bibliography package, for Harvard style 
+\RequirePackage[square, numbers, comma, sort]{natbib} % extension to Bibliography package, for Harvard style 
 
 % Compilation-time checks
 \RequirePackage{strict}
