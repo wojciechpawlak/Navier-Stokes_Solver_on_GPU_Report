@@ -125,10 +125,43 @@ These values are differently set depending on the type of boundary condition on 
 
 What is left to discritize are the time derivatives $\frac{\partial u}{\partial t}$ and $\frac{\partial v}{\partial t}$. The time interval  $ [ 0,t_{end} ] $ is subdivided into equal subintervals $n \delta t, (n+1)\delta t$, where $n = 0,\dots, \frac{t_{end}}{\delta t - 1}$. This means that values $u$, $v$ and $p$ are considered only at times $n \delta t$. The time derivatives are discretized using Euler's method.
 
+\section{The Algorithm}
+The numerical method to solve the equations through discretization consists of a time-stepping loop. In summary, the $(n + l)$st time step consists of the following parts:
+\begin{description}
+\item[Step 1:] Compute $F^{(n)}, G^{(n)}$ \ref{eq:f_g} from the velocities $u^{(n)}, v^{(n)}$.
+\item[Step 2:] Solve the Poisson equation \ref{eq:poisson} for the pressure $p^{(n+l)}$.
+\item[Step 3:] Compute the new velocity field $(u^{(n+1)}, v^{(n+1)})^T$ using \ref{eq:u_v} with the pressure values $p^{(n+l)}$ computed in Step 2.
+\end{description}
 
+If the time discretization of terms $\frac{\partial u}{\partial t}$ and $\frac{\partial v}{\partial t}$ in the momentum equations \ref{eq:2d_navier_u} and \ref{eq:2d_navier_v} is computed, two abbreviations are introduced for simplicity:
+\begin{equation}
+	\begin{array}{l} \label{eq:f_g}
+		F := u^{(n)} + \delta t \left[ \frac{1}{Re} \left(\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2}\right) - \frac{\partial (u^2)}{\partial x} - \frac{\partial uv}{\partial y} + g_x \right], \\
+		G := v^{(n)} + \delta t \left[ \frac{1}{Re} \left(\frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2}\right) - \frac{\partial uv}{\partial x} - \frac{\partial (v^2)}{\partial y} + g_y \right].
+	\end{array}
+\end{equation}
 
+This gives us the time discretization of the momentum equations \ref{eq:2d_navier_u} and \ref{eq:2d_navier_v}:
+\begin{equation}  \label{eq:u_v}
+	\begin{array}{l}
+	 	u^{(n)} = F^{(n)} - \delta t \frac{\partial p^{(n+1)}}{\partial x}, \\
+	 	v^{(n)} = G^{(n)} - \delta t \frac{\partial p^{(n+1)}}{\partial y}.
+	\end{array}
+\end{equation}
 
+Discretization is explicit in the velocities and implicit in the pressure, i.e. the velocity field at time $t_{n+1}$ can be computed once the corresponding pressure is known. Pressure is determined by substituting the relation \ref{eq:u_v} into the continuity equation \ref{eq:2d_navier_div}, which after some rearranging, becomes a Poisson equation for pressure $p^{(n+l)}$ a time $t_{n+1}$:
 
+\begin{equation} \label{eq:poisson}
+	\frac{\partial^2 p^{(n+l)}}{\partial x^2}+\frac{\partial^2 p^{(n+l)}}{\partial y^2} = \frac{1}{\delta t} \left( \frac{\partial F^{(n)}}{\partial x} + \frac{\partial G^{(n)}}{\partial y} \right).
+\end{equation}
+
+Morover, boundary values for pressure are required in solution of the pressure Poisson equation in Step 2. Furhermore, to obtain the fully discrete momentum equations, the spatial derivatives have to be discretized too. 
+
+Fully discrete Poisson equation is obtained along the discretization of the Laplacian and the discrete quantities introduced earlier. Boundary conditions also need to be taken into consideration. The report drops all the details connected with deriving the exact final form of the Poisson equation as \cite{griebel1998numerical} describe the process in steps. The result of this derivation is a large, sparse linear system of equations that come form discretization of PDEs. Direct methods as Gaussian elimination are not efficient in terms of computer time or storage, so an iterative method is used. Gauss-Seidel method is a classic example of such methods. Following Griebel et al., the project uses its improved variant called successive overelaxation (SOR) method. The iteration is terminated when the maximal number of steps is reached or when the of the residual is under some absolute tolerance. An $L^2$-norm is used. This method yields some other problems and needs additional fixes during the implementation.
+
+One of the problems is that convergance behaviour deteriorates while spacing between the grid lines is decreased. It results in an increased number of iteration steps to reduce iteration error below a given tolerance. Such behaviour was observed in this project.
+
+The multigrid methods are another class of iteratice methods, where number of iteration steps is independant of the number of unknowns. They solve the problem of increase in the number of iteration steps through performing computation on successively coarser grids obtained by doubling the spacing between the grid lines of each previous grid.
 
 \section{Problems in CFD}
 
