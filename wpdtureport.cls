@@ -246,7 +246,7 @@ commentstyle=\color[rgb]{0,0.5,0}
     	{\sffamily\Large\ThSubtitleEN\\[2cm]}
     	{\sffamily\large\ThCourseName\\[0.2cm]}
     	{\sffamily\large Supervisor: \ThSupervisors\\[0.5cm]}
-    	{\sffamily\today}
+    	{\sffamily 3 August 2012}
     	
    		\vspace{\stretch{2}}
 

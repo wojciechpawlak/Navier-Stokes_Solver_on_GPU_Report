@@ -8,7 +8,127 @@ The equations governing the fluid interaction need to be discretized before simu
 Many processes take place within different fluids. The interactions between different fluid particles as well as the forces between moving fluids and solid bodies at rest or vice versa need to be considered. A physical property of fluids known as \emph{viscosity} is the source of the occurring forces. It generates frictional forces that act on the fluid initially in motion bringing it eventually to the rest in the absence of external forces. Another property of fluids is called \emph{inertia} and specifies the resistance of any physical object to a change in its state of motion or rest. It is possible to simulate this property when a idealized layered model of fluid is assumed. Flows adhering to this idealization are called \emph{laminar flows} as opposed to \emph{turbulent flows}, which assumes that particles can mix between layers. The relative magnitude of these two properties is measured by dimensionless parameter called Reynolds number. Prandtl number is another parameter that is connect to the behaviour of fluid next to the boundary layers.  
 
 \section{Description of Navier-Stokes Equations}
-Navier-Stokes equations form a fundamental mathematical model for almost all CFD problems. They treat laminar flows of viscous, incompressible fluids.
+Navier-Stokes equations form a fundamental mathematical model for almost all CFD problems. They treat laminar flows of viscous, incompressible fluids. A solution of the equations is called a velocity field that describes velocity of fluid at given point in space and time. For visualisation purposes though trajectories of position of a particles would be needed.
+
+The flow of a fluid in a region $ \Omega \subset \mathbb{R}^{N} $, where  $ \left ( N = \left \{ 2, 3 \right \} \right ) $ throughout time $ t \in \left [ 0,t_{end} \right ] $ is characterized by the following quantities:
+
+\[
+\begin{array}{l l}
+\overrightarrow{u}: \Omega \times \left [ 0,t_{end} \right ] \rightarrow \mathbb{R}^{N} & \quad \text{velocity field,} \\
+p: \Omega \times \left [ 0,t_{end} \right ] \rightarrow \mathbb{R} & \quad \text{pressure,} \\
+\varrho: \Omega \times \left [ 0,t_{end} \right ] \rightarrow \mathbb{R} & \quad \text{density.}
+\end{array}
+\]
+
+Density changes in incompressible flows are negligible. Therefore the flow is described by a system of partial differential equations which dimensionless form is given by:
+
+\begin{equation} \label{eq:comp_navier}
+\begin{array}{r c l l}
+\frac{\partial }{\partial t}\overrightarrow{u} + (\overrightarrow{u}\cdot \nabla)\overrightarrow{u} + \nabla p & = & \frac{1}{Re}\Delta \overrightarrow{u} + \overrightarrow{g} & (\text{momentum equation}), \\
+div \overrightarrow{u} & = & 0 & (\text{continuity equation}),
+\end{array}
+\end{equation}
+
+where pressure is determined only up to am additive constant. The quantity $ Re \in \mathbb{R} $ is the dimensionless \emph{Reynolds number} and $ \overrightarrow{g} \in \mathbb{R}^{N}$ denotes body forces such as gravity acting throughout the bulk of the fluid.\cite{griebel1998numerical}
+
+In this project the two-dimensional case $ \left ( N =2 \right ) $ is considered, so the equations \ref{eq:comp_navier} rewritten in component form look as follows:
+
+\begin{subequations}
+momentum equations:
+\begin{equation} \label{eq:2d_navier_u}
+\frac{\partial u}{\partial t} + \frac{\partial p}{\partial x} = \frac{1}{Re} (\frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2}) - \frac{\partial (u^2)}{\partial x} - \frac{\partial uv}{\partial y} + g_x,
+\end{equation}
+\begin{equation} \label{eq:2d_navier_v}
+\frac{\partial v}{\partial t} + \frac{\partial p}{\partial y} = \frac{1}{Re} (\frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2}) - \frac{\partial uv}{\partial x} - \frac{\partial (v^2)}{\partial y} + g_y;
+\end{equation}
+continuity equation:
+\begin{equation} \label{eq:2d_navier_div}
+\frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} = 0,
+\end{equation}
+\end{subequations}
+
+where $ \overrightarrow{x} = (x, y)^T $, $ \overrightarrow{u} = (u, v)^T $ and $ \overrightarrow{g} = (g_x, g_y)^T $.\cite{griebel1998numerical}
+Initially, initial conditions for $u$ and $v$ need to satisfy \ref{eq:2d_navier_div}. Fo simplicity, energy equation was not mentioned as Boundary conditions are dependant on modelled problem. Different types are as follows:
+\begin{enumerate}
+\item \emph{No-slip condition:} No fluid penetrates the boundary and the fluid is at rest there.
+\item \emph{Free-slip condition:} No fluid penetrates the boundary. There are no frictional losses at the boundary.
+\item \emph{Inflow condition:} Both velocity components are given.
+\item \emph{Outflow condition:} Neither velocity component changes in the direction normal to the boundary.
+\item \emph{Periodic boundary condition:} For periodic problems with a period in one coordinate direction, the computations are restricted to one period interval. The velocities and pressure must then coincide at the left and right boundaries.
+\end{enumerate}
+
+This is just the essential minimum. The way these equations are derived and more mathematically detailed descriptions of equations and boundary conditions can be found in \cite{griebel1998numerical}.
+
+\section{Discretization of Navier-Stokes Equations}
+Discretization is used in the numerical solution of differential equations to reduce those differential equations to a system of algebraic equations. One of the methods to achieve it is the \emph{finite difference method} (FD). Detailed description on how to derive discretized Navier-Stokes equations may be found in \cite{griebel1998numerical}.
+
+Discretization in two dimensions is carried out In this project. In two dimensions, the the problem is restricted in size to a rectangular region
+
+\[
+	\Omega := \left [ 0, a \right ] \times \left [ 0, b \right ] \in \mathbb{R}^2
+\]
+
+on which a grid is introduced. The gird is divided into $ i_{max}$ cells of equal size in the $x$-direction and $j_{max}$ cells in the $y$-direction, resulting in grid lines that are spaced apart at a distance
+
+\[
+	\begin{array}{c c c}
+		\delta x := \frac{a}{i_{max}} & \text{and} & \delta y := \frac{b}{j_{max}}.
+	\end{array}
+\]
+
+When solving the Navier-Stokes equations, the region $\Omega$ is often discretized using a staggered grid, in which the different unknown variables are not located at the same grid points. Scalar variables like pressure $p$ is located in the cell center. The velocity $u$ is located in the midpoints of the vertical cell edges and the velocity $v$ in the midpoints of the horizontal cell edges (see Figure \ref{disc_stag_grid}).
+
+\figuremacroW{disc_stag_grid}{Staggered grid.}{Staggered grid for cell $(i,j)$ and $(i+1,j)$.\cite{griebel1998numerical}}{0.6}
+
+As a result, the discrete values of $u$, $v$, and $p$ are located on three
+separate grids, each shifted by half of a grid spacing to the bottom,
+to the left, and to the lower left, respectively. Therefore vertical boundaries do not have $v$-values and horizontal boundaries do not have $u$-values. This forces the introduction of extra boundary strips of grid cells (see Figure \ref{disc_domain_bound}). The boundary conditions may be then applied by averaging the nearest grid points and this is done on every side. 
+
+\figuremacroW{disc_domain_bound}{Domain with boundary cells.}{Domain with boundary cells.\cite{griebel1998numerical}}{0.6}
+
+Such staggered setup of the unknowns prevents possible pressure oscillations which could occur if all three unknown functions $u$, $v$ and $p$ at the same grid points. Another alternatives to staggered grid may be e.g. colocated grid.
+
+Just to illustrate the method, e.g. the continuity equation \ref{eq:2d_navier_div} is discretized at the center of each cell $(i,j)$ by replacing the spatial derivatives $\frac{\partial u}{\partial x}$ and $\frac{\partial v}{\partial y}$ by centered differences using half the mesh width:
+
+\begin{equation}
+	\begin{array}{c c}
+		{ \left [ \frac{\partial u}{\partial x} \right ]}_{i,j} := \frac{u_{i,j} - u_{i-1,j}}{\delta x}, & { \left [ \frac{\partial v}{\partial y} \right ]}_{i,j} := \frac{v_{i,j} - v_{i,j-1}}{\delta y}.
+	\end{array}
+\end{equation}
+
+For momentum equation \ref{eq:2d_navier_u} for $u$ is discretized at the midpoints of the vertical cell edges, and the momentum equation \ref{eq:2d_navier_v} for $v$ at the midpoints of the horizontal cell edges and the values required for calculation of some of the terms are shown in Figure \ref{disc_u_req_vals}. The disretization process of these equations is dropped here as it may be seen in \cite{griebel1998numerical} as the project is fully based on these process. The process may pose some difficulties with some of the terms.
+
+\figuremacroW{disc_u_req_vals}{Values required for the discretization of the $u$-momentum equation.}{Values required for the discretization of the $u$-momentum equation.\cite{griebel1998numerical}}{0.4}
+
+Moreover, following \cite{griebel1998numerical}, the discretization of the terms of the momentum equation \ref{eq:2d_navier_u} for $u$ involves $u$-values on the boundary for $i \in \{ 1, i_{max} - 1 \}$. Moreover, for  $j \in \{ 1, j_{max} - 1 \}$, $v$-values lying on the boundary are required as well as additional $u$-values lying outside the domain $\Omega$. Similarly, boundary values of $v$ are required in the discretization of the terms of the momentum equation \ref{eq:2d_navier_v} for $v$. In total, we require the values 
+
+\[
+	\begin{array}{l l l}
+		u_{0,j}, & u_{i_{max},j} & j = 1,\dots,j_{max}, \\
+		v_{i,0}, & v_{i,j_{max}} & i = 1,\dots,i_{max},
+	\end{array}
+\]
+
+on the boundary as well as the values
+
+\[
+	\begin{array}{l l l}
+		u_{i,0}, & u_{i,j_{max}+1} & i = 1,\dots,j_{max}, \\
+		v_{0,j}, & v_{i_{max}+1,j} & j = 1,\dots,j_{max},
+	\end{array}
+\]
+
+outside the domain $\Omega$. These velocity values are obtained from a discretization
+of the boundary conditions of the continuous problem.
+
+These values are differently set depending on the type of boundary condition on given boundary. The description may be once more seen in \cite{griebel1998numerical}.
+
+What is left to discritize are the time derivatives $\frac{\partial u}{\partial t}$ and $\frac{\partial v}{\partial t}$. The time interval  $ [ 0,t_{end} ] $ is subdivided into equal subintervals $n \delta t, (n+1)\delta t$, where $n = 0,\dots, \frac{t_{end}}{\delta t - 1}$. This means that values $u$, $v$ and $p$ are considered only at times $n \delta t$. The time derivatives are discretized using Euler's method.
+
+
+
+
+
 
 \section{Problems in CFD}
 
@@ -17,7 +137,7 @@ Navier-Stokes equations form a fundamental mathematical model for almost all CFD
 
 \section{Other attempts of implementing the solver}
 
-grid The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs. Many computations naturally map into grids: matrix algebra, image processing, physically based simulation, and so on.
+grid The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs. 
 
 \section{Examples of CFD projects using GPUs and OpenCL}
 A lot of knowledge can be gathered just looking at other projects being implemented using given technology on given platform. As the project  The works of Bednarz et al. are worth mentioning. His team implemented Computation Fluid Dynamics solvers with OpenCL. Another similar work was done by Zaspel from research group of Griebel. He was using CUDA. Another project could be 
