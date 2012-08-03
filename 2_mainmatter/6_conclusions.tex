@@ -1,5 +1,19 @@
 \chapter{Conclusions}
 \section{General}
+Design and implement a scientific computing application for execution on GPUs.
+
+Verify and validate implemented scientific computing application using standard benchmarks.
+
+Skillfully analyze performance of implemented PDE solver.
+
+Apply optimization techniques for improving performance of PDE solver on GPUs.
+
+Understand how to write a parallel program using OpenCL for heterogenous computing on many-core architectures.
+
+Apply basic principles for numerical approximation/discretization.
+
+
+
 The project's goal was to get acquainted with doing computations on GPU.
 
 No prior experience with CFD codes and optimizations of numerical methods. If had any could come up with implementation of other numerical method that could be easier to parallelize. 
@@ -8,12 +22,12 @@ No prior experience with OpenCL (in most parts the same as CUDA, but lack tools)
 
 Lot of problems with constructing even the naive kernel as to get the maximum benefit from parallelizing code on GPU, focus should be first drawn to find ways to parallelize sequential code. Code was thus looked as subblocks of same computations. Most data parallelism should be found.
 
-Problems with bandwidth and minizming transfer between the host an the device, because it was not directly possible to create a kernel from many parts of the algorithm. Examples were researched. Stencil code implementations were found.
+Problems with bandwidth and minimizing transfer between the host an the device, because it was not directly possible to create a kernel from many parts of the algorithm. Examples were researched. Stencil code implementations were found.
 
 To watch the results of minimization in the use of global memory, some version of kernels were implemented. Prefer shared memory access where possible. 
 
 
-Float and double precison.
+Float and double precision.
 
 Other platforms
 
@@ -22,11 +36,57 @@ Different sizes of arrays with regular step
 NVIDIA Profiler used
 
 \section{Improvements}
-% Do it as a list.
+\subsubsection{More optimized kernels}
+
+
+\subsubsection{Profile code on AMD platform}
+
+\subsubsection{More problems from the book}
+
+
+\subsubsection{Implement Red-Black Gauss-Seidel Kernel}
+
+multi-color scheme
+
+This allows you to reduce
+dependencies. That it, run the iteration on a red-black checkerboard.
+First sweep is  red only and second sweep is black only.
+
+Probably the most straightforward thing is to exchange SOR with a
+Red-black Gauss-Seidel to increase parallelism, however, this comes as the
+expense of reduced algorithmic efficiency (i.e. more iterations to achieve
+a given accuracy level). 
+
+\subsubsection{Use C++ Wrapper}
+
+
+
+\subsubsection{Use Image Format}
 Another type of memory object supported by OpenCL could be used and tested, namely images. They are optimized for two-dimensional access patterns. Such access was used in this project as grids of cells are two-dimensional. The challenge would be to learn how to work with this type of memory object as the data stored in it is accessible only through specialized access functions. In comparison, the buffer objects that were used map directly to the standard array representation that programmers are used to when using C programming language.
 
 
 \section{Future Work}
+
+\subsubsection{3D Grid}
+
+\subsubsection{Multigrid method}
+a multigrid approach which would lead to good efficiency and
+scalability. 
+
+ doing multigrid requires some basic understanding of
+the numerical discretization methods. 
+
+ Essentially the multigrid method can be constructed from
+a few simple kernels (prolongation, restriction, Jacobi/GaussSeidel/Sor
+smoothening and a grid hierarchy)
+
+
+\subsubsection{Distributed calculations}
+MPI
+
+
+\subsubsection{Mobile platform}
+
 % Do it as a list.
 
 Solution could be simulated on Tegra chip on Android Platform to check the performance of computation on yet another type of platform. This time a mobile GPU would be used. Such

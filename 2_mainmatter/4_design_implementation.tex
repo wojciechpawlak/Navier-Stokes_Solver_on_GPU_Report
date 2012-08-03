@@ -10,6 +10,10 @@ Modularity
 
 All code should be executed on GPU for valid comparison. 
 
+justify changes you make
+in the algorithm if you try to increase parallelism.
+
+
 \section{Implementation}
 
 \subsection{Developing with OpenCL}
@@ -40,7 +44,7 @@ Worksize
 
 Implementation consists of sets of kernels as 
 
-Griebels cod intrinsics: Memory allocation
+Griebels code intrinsics: Memory allocation
 
 Code is portable and works under both on Windows and Unix platforms. Tested on Windows 7 and Linux clusters. Compilers used are nvcc and Visual Studio on Windows and gcc on Linux.
 
@@ -79,6 +83,14 @@ Straightforward port of functions to kernels. Getting rid of for loops. Ensuring
 
 
 \subsection{Shared memory kernels}
+
+THis does not require changin the current algorithms
+
+auto-tune each kernel by finding optimal
+configurations for threads/Blocks (i.e. Work items/groups) 
+
+ This can be done by brute-forces tests and simple timing
+experiments and would be interesting.
 
 \subsection{Development}
 Production code should, however, systematically check the error code returned by each API call and check for failures in kernel launches (or groups of kernel launches in the case of concurrent kernels) 

@@ -1,10 +1,17 @@
 \chapter{Performance Analysis}
 
+analyzing and detailing performance measurements of kernels (test
+across architectures, scalability with problem size, measuring speedups
+between host and device versions, single vs. double precision, etc.)
+
+
 Synchronization between work-items is possible only within workgroups using barriers and memory fences. It is not possible to synchronize workitems that are in different workgroups. This would hinder data parallelism.
 
 Memory management is explicit, so a programmer moves data from host to global memory of device first using OpenCL constructs. Then it can be moved to local memory. To read the results on the host the process has to be reverted.
 
 Workgroup size for a given algorithm should be selecten to be an even multiple of the width of the hardware scheduling units.
+
+Events
 
 \section{Computed results}
 Theoretic bandwidth vs. Effective bandwidth
@@ -47,7 +54,91 @@ Workgroup size
 
 Size of the grid
 
+Essentially you should strive for doing all computations on the device
+only (unless you aim for very large distributed calculations, which
+requires some more effort). That is, transfer all necessary data to device
+and let it stay there for as long as possible while doing calculations and
+then port the results back to the host in the end.
+
+
+This speedup is on your laptop? For a high-end CPU and GPU I would expect,
+say, 5 times speedup in a naive transfer due to the difference in on-chip
+bandwidths for an identical code setup.
+
+\section{Residual Computation}
+IS it used to measure convergence in the iterative solver? (i.e. Used
+in a stop criterion?)
+
+Redcution kernel
+
+Three immediate options
+1) Use an optimized library routine for the reduction.
+2) Doen't do the reduction if it only measures convergence. Choose a fixed
+number of iteration for now, to avoid the reduction step, i.e. Choose an
+adequate number of fixed iteration that will be used in the calculations.
+3) Write your own optimized reduction kernel (cf. Report and source code
+attached from another special course i did with some students last year on
+efficient sum reduction kernels) or just see if you can simply use the
+code attached.
+
+
+
 Kernels are executed asynchronously
 enquing memory resources asynchronously
 using events to track the execution status
 
+problem of kernel load overheads and possibly decrease
+necessary loads/stores.
+
+kernels memory bound
+
+Did you try not to synchronize? Iterative methods may achieve faster
+convergence rate without synchornization. Danger is read/write hazards
+which can penalize performance.
+
+>Probably it would
+>simply have to be a barrier in the end of each iteration.
+Try this
+
+
+Naive kernel means simplest kernel you can think of and without any
+optimizations. Go for correctness first and then optimize and measure
+improvements against this naive kernel. This is one good development
+strategy.
+
+
+Reduction kernels
+Yes it is a reduction kernel which requires global communication. This can
+be optized quite far as described in the report by Klaus and Max which I
+gave to you (as I recall).
+
+
+>The overall
+>performance of the solver mostly depends on the number of iteration
+>and how many time each kernel is run and what type of kernel is this
+>(whether a simple map or a reduction or stencil). There is an overall
+>speedup when max number of iterations is small (say 20). For 100 that
+>seemed to be a default value in Griebel's code there is a slowdown I
+>wrote about last time. More iterations better detail I understand.,
+>but is there any itermax that would be high enough to be
+>scientifically significant?
+
+Not sure what you actually see or how you measure performance improvements
+here. I would expect the parallel GPU kernels to be significantly faster
+than the equivalent CPU versions, due to the higher on-chip bandwidth as
+well as the much better latency-hiding when multiple threads are used
+(assuming enough work to do this).
+
+
+. Have you profiled the code to spot bottlenecks?
+
+Read and writes are expensive as you pointed out. This comes with the
+modularity of the code chosen.
+
+\subsection{Double/Float Comparison}
+
+>It is also surprising to see divergence in results between single and
+>double-precision floats on CPU and GPU.
+
+How much divergence? Divergence can suggest that there is some difference
+in the algorithms as implemented.
