@@ -1,102 +1,57 @@
 \chapter{Design and Implementation}
 
 \section{Design}
-The design of the code is based on the implementation by Griebel et al. that is presented in their book\cite{griebel1998numerical}. Description of most of the functions is featured in the book, so here only the functions that were changed will be described.
+The design of the code is based on the implementation by Griebel et al. that is presented in their book\cite{griebel1998numerical}. Description of most of the functions is featured in the book, so here only the essential changes to functions will be described.
 
 To allow for computations on boundaries, ghost cells need to be allocated.
 
+Numerical methods at most and especially iterative methods map into programming languages in form of loops. As long as consequent iterations are not dependant on one another, programmer can strive for data-parallelism on GPU. Nested loops in numerical methods for 2D problems iterate usually over time and space of the domain. The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs. The base code already simulated the code in 2D. As a side note, the allocated memory in Griebel's code was for verbosity allocated in two-dimensional array. Such abstraction of memory is not supported by OpenCL C yet, so one-dimensional access had to used.
 
- Necessary changes had to be introduced to allow it to work with GPU. First of all, the OpenCL platform needs to instantiated and 
+However, boundary conditions apply only to a small subset of cells in the grid. These are checked using if-conditions that are mapped into branches by compiler. In comparison to GPUs, CPUs have many mechanisms like dynamic branch prediction embedded in the chip. This is because a significant part of the silicon is devoted to control units as opposed to a paradigm of GPU architecture, where most of the space is taken by ALU performing computation. Therefore code that is full of nested conditions, but do not expose much iteration will not expose good performance on GPU. Such code is better left to be executed on CPU.
 
-The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs.
+Necessary changes had to be introduced to allow it to work with GPU. First of all, the OpenCL platform needs to instantiated and the pipeline must be setup.  
 
-A set of kernels
 
-Modularity
+A set of kernels was implemented matching every function in Griebel's code. Griebel et al. in their book claim that they aim for modularity of code
 
-All code should be executed on GPU for valid comparison. 
+Code in project is based on structure from Griebel's code. Least as possible was changed in structure as to keep it comparable with the original code.
 
-justify changes you make
-in the algorithm if you try to increase parallelism.
+
+Griebel's code is completely sequential. Essemtialy, all code should be executed on GPU for valid comparison. 
+
+To increase parallelism that can be used on GPU the algorithm needs to be run on single data units as independently as possible.
+
+In terms of way the kernel treats data is considered, there can be different types of kernels. The most simple kernel is the map kernel that maps to every data object a given function and executes it on it. The map operation is straightforward to implement on the GPU as this pure data parallelism. On the GPU performance of sucha kernel is limited only be the size of workgroup that is mapped to warps or waves that are in tun mapped to separate sequential multiprocessors or cores. After a fragment of data grid is processes the result is saved in the output buffer of the same size as the input buffer.
+
+Other type of a kernel is a reduction kernel that produce a result that is considerably smaller than the original input. Generally a reduction can be accomplished in multiple steps. For instance for a resultant output of size 1, the results from the prior step are used as the input for the current step and the range over which the operation is applied is reduced until only one stream element remains.
+
+There are also kernels that access the input buffer in random fashion gathering values from any grid cell or a multiple of grid cells at a time.
+
+Another type of kernel is a stencil kernel, which access a fixed number of neighbouring cells and computes its value on their basis.
+
+\subsection{Types of functions}
 
 
 \section{Implementation}
+Code is written in C on the host and OpenCL C is used to write kernels to be executed on the device. The overall process of settin up the OpenCL environment will be dropped for this project as there are plenty of resources, from orginal Khronos materials to tutorial in the Internet, that guide a beginner programmer. Moreover, a specification of OpenCL talks about its constructs, programming and memory model. Therefore only essential constructs that are used in implementation are described in the report. 
 
-\subsection{Developing with OpenCL}
-A simplest standard OpenCL pipeline would consist of following steps:
+The global worksize of computation on GPU is dependant on specified size of the simulated grid. A human-readable definition file is used to set parameters and create the benchmark problem to be simulated by solver. In Griebel's code the paramaters are originally specified in inputfile, but the geometry of the boundaries is hardcoded in the source code. This was left unchanged.
 
-\begin{enumerate}
-\item 
-\item
-\end{enumerate}
-find platform
-find device
-create context and queue
-build program
-write device buffers
-execute kernel in range
-read device buffers
+Implementation consists of sets of kernels for every of the functions from original code. Modularity was thus maintained, but the effect that it has on overall performance (loading many small kernels vs. a few complex kernels) needs to be determined in tests.
 
+Griebel's code have some intrinsics. For instance, the original code seems to be written for maximal readability and conformance with the content in the book. Thus ghost cells for boundary conditions are additionally allocated.
 
+Code proved to be portable and works under both on Windows and Unix platforms without any additional changes. The code for the project was first and foremost implemented on Windows 7 platform. The eventual execution on Linux platform was pushed to the test part of implementation. Compilers used are nvcc and Visual Studio on Windows. gcc is used on Linux.
 
-Code in project is based on structure from Griebels code\cite{griebel1998numerical}. Least as possible was changed in structure as to keep it comparable with the original code.
-
-Code is written in C and OpenCL C.
-
-Two-dimensional arrays in original 
-One-dimensional arrays for OpenCL code. 1D arrays cannot be passed to OpenCL kernels.
-
-Worksize
-
-Implementation consists of sets of kernels as 
-
-Griebels code intrinsics: Memory allocation
-
-Code is portable and works under both on Windows and Unix platforms. Tested on Windows 7 and Linux clusters. Compilers used are nvcc and Visual Studio on Windows and gcc on Linux.
-
-Table Computer specs.
-
-%\subsection{Description of functions}
-
-Table
-
-\subsection{Functions}
-Map
-
-The map operation simply applies the given function (the kernel) to every element in the stream. A simple example is multiplying each value in the stream by a constant (increasing the brightness of an image). The map operation is simple to implement on the GPU. The programmer generates a fragment for each pixel on screen and applies a fragment program to each one. The result stream of the same size is stored in the output buffer.
-
-
-Reduce
-
-Some computations require calculating a smaller stream (possibly a stream of only 1 element) from a larger stream. This is called a reduction of the stream. Generally a reduction can be accomplished in multiple steps. The results from the prior step are used as the input for the current step and the range over which the operation is applied is reduced until only one stream element remains.
-
-Gather
-
-The fragment processor is able to read textures in a random access fashion, so it can gather information from any grid cell, or multiple grid cells, as desired.
-
-\subsection{Stencil computation}
 
 
 \subsection{Benchmarking code}
-Code is timed with standard library time.h clock function.
-No OpenCL timer code because on CPU. Code timed with buffer allocation and memory access and without.
+Code is timed with standard library time.h clock function. The OpenCL profiling timer is not used in this code because the goal is to measure wall clock time on CPU. Code can be timed with buffer allocation and reading it or without. To compare the performance with CPU that accesses its memory on a constant basis, the memory allocation on the device and then later reading it back should be counted in for a fair comparison.
 
-\subsection{Visualisation code}
-Matlab scripts to visualise code. Tests.
+To visualise results of computation, Matlab scripts were written. In original code, Griebel et all. added a possibility to save particle trajectories for visualisation purposes. This was kept, although it is turned off for performance reasons. It was not ported to GPU.
 
-\subsection{Naive kernels}
-Straightforward port of functions to kernels. Getting rid of for loops. Ensuring that boundaries are not crossed.
+To implement a naive kernel, an easiest approach is to strive for the straightforward unoptimized port of the function. This usually boils down to understanding that kernel is like a (inner nested) loop's body, so the first thing to do is to e.g. getting rid of for loops. In this moment, the boundaries still should not be not crossed so if-conditions should be added to ensure that.
 
+Implementing shared memory kernels usually does not require any changes in the underlying algorithm. Instead, focus is pushed to the host where the kernel is executed and code of each kernel is tuned by finding optimal configuration for work item/ work groups. This is most often done through straightforward timing experiments and brute-force testing.
 
-\subsection{Shared memory kernels}
-
-THis does not require changin the current algorithms
-
-auto-tune each kernel by finding optimal
-configurations for threads/Blocks (i.e. Work items/groups) 
-
- This can be done by brute-forces tests and simple timing
-experiments and would be interesting.
-
-\subsection{Development}
-Production code should, however, systematically check the error code returned by each API call and check for failures in kernel launches (or groups of kernel launches in the case of concurrent kernels) 
+Another guideline for optimal OpenCL development is that production code should systematically check the error code returned by each API call and check for failures in kernel launches (or groups of kernel launches in the case of concurrent kernels). 
