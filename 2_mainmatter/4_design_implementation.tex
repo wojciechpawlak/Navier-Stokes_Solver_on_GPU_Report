@@ -5,7 +5,7 @@ The design of the code is based on the implementation by Griebel et al. that is 
 
 To allow for computations on boundaries, ghost cells need to be allocated.
 
-Numerical methods at most and especially iterative methods map into programming languages in form of loops. As long as consequent iterations are not dependant on one another, programmer can strive for data-parallelism on GPU. Nested loops in numerical methods for 2D problems iterate usually over time and space of the domain. The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs. The base code already simulated the code in 2D. As a side note, the allocated memory in Griebel's code was for verbosity allocated in two-dimensional array. Such abstraction of memory is not supported by OpenCL C yet, so one-dimensional access had to used.
+Numerical methods at most and especially iterative methods map into programming languages in form of loops. As long as consequent iterations are not dependant on one another, programmer can strive for data-parallelism on GPU. Nested loops in numerical methods for 2D problems iterate usually over time and space of the domain. The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs. The base code already simulated the code in 2D. As a side note, the allocated memory in Griebel's code was for verbosity allocated in two-dimensional array. Such abstraction of memory is not supported by OpenCL C, so one-dimensional access had to used.
 
 However, boundary conditions apply only to a small subset of cells in the grid. These are checked using if-conditions that are mapped into branches by compiler. In comparison to GPUs, CPUs have many mechanisms like dynamic branch prediction embedded in the chip. This is because a significant part of the silicon is devoted to control units as opposed to a paradigm of GPU architecture, where most of the space is taken by ALU performing computation. Therefore code that is full of nested conditions, but do not expose much iteration will not expose good performance on GPU. Such code is better left to be executed on CPU.
 
@@ -17,11 +17,11 @@ A set of kernels was implemented matching every function in Griebel's code. Grie
 Code in project is based on structure from Griebel's code. Least as possible was changed in structure as to keep it comparable with the original code.
 
 
-Griebel's code is completely sequential. Essemtialy, all code should be executed on GPU for valid comparison. 
+Griebel's code is completely sequential. Essentially, all code should be executed on GPU for valid comparison. 
 
 To increase parallelism that can be used on GPU the algorithm needs to be run on single data units as independently as possible.
 
-In terms of way the kernel treats data is considered, there can be different types of kernels. The most simple kernel is the map kernel that maps to every data object a given function and executes it on it. The map operation is straightforward to implement on the GPU as this pure data parallelism. On the GPU performance of sucha kernel is limited only be the size of workgroup that is mapped to warps or waves that are in tun mapped to separate sequential multiprocessors or cores. After a fragment of data grid is processes the result is saved in the output buffer of the same size as the input buffer.
+In terms of way the kernel treats data is considered, there can be different types of kernels. The most simple kernel is the map kernel that maps to every data object a given function and executes it on it. The map operation is straightforward to implement on the GPU as this pure data parallelism. On the GPU performance of such a kernel is limited only be the size of workgroup that is mapped to warps or waves that are in tun mapped to separate sequential multiprocessors or cores. After a fragment of data grid is processes the result is saved in the output buffer of the same size as the input buffer.
 
 Other type of a kernel is a reduction kernel that produce a result that is considerably smaller than the original input. Generally a reduction can be accomplished in multiple steps. For instance for a resultant output of size 1, the results from the prior step are used as the input for the current step and the range over which the operation is applied is reduced until only one stream element remains.
 
@@ -31,19 +31,35 @@ Another type of kernel is a stencil kernel, which access a fixed number of neigh
 
 \subsection{Types of functions}
 
+\section{Implementing OpenCL on NVIDIA platform}
+Implementation of OpenCL may vary from platform to platform. Usually the underlying architecture needs to be taken into consideration, when optimizing code for performance.
+
+\subsection{OpenCL Execution Model}
+On NVIDIA platform, OpenCL workitems are executed by streaming processors (scalar processors) and they are mapped directly to hardware managed threads. Work-groups are executed on multiprocessors and they do not migrate. However, several concurrent work-groups can reside on one multiprocessor. This is only limited by multiprocessor resources. A whole kernel is launched as an N-D Range of workgroups. Workgroups are dynamically load-balanced by hardware scheduler.
+
+\subsection{OpenCL Memory Model on NVIDIA}
+On NVIDIA platform, each hardware thread has a dedicated \texttt{\_\_private} region of registers for stack of variables. Each multiprocessor allocates dedicated storage for \texttt{\_\_local} memory and \texttt{\_\_constant} caches. Workitems running on a multiprocessor can communicate through \texttt{\_\_local} shared memory. All workgroups on the device can access \texttt{\_\_global} memory that is stored in global memory available to all multiprocessors on device. Atomic operations allow powerful forms of global communication.
+
+\subsection{OpenCL Synchronization}
+On a level of workitem, synchronization is achieved through memory system control using \texttt{mem\_fence()} functions. Independent atomic operations \texttt{atom\_*()} may also be used. For workgroups synchronization, \texttt{barrier()} function is supported as a single instruction fast barrier directly in hardware. Collective operations like \texttt{async\_work\_group\_copy()} leverage the entire multiprocessor. On level of whole ND Range grid, direct hardware support is provided. While using enqueued commands on grid, e.g. \texttt{EnqueueNDRange}, an \texttt{cl\_event} can be used for scheduling which is directly supported in hardware.
+
+\subsection{Other considerations}
+It is worth mentioning that NVIDIA GPUs have a scalar architecture, so vector types can be rather used for convenience and code readability than for performance as these are not going to be mapped into architecture. In general, on NVIDIA architecture a larger number of workitems gives better performance than wide vectors per workitem. Furthermore, performance can be significantly optimized by overlapping memory with hardware computation. This is why high ratio between arithmetic operations and memory transaction is especially valuable. NVIDIA architecture provides many concurrent workitems to facilitate that.
+
+\section{Implementing OpenCL on AMD platform}
+
+\section{Implementing OpenCL on Intel platform}
 
 \section{Implementation}
-Code is written in C on the host and OpenCL C is used to write kernels to be executed on the device. The overall process of settin up the OpenCL environment will be dropped for this project as there are plenty of resources, from orginal Khronos materials to tutorial in the Internet, that guide a beginner programmer. Moreover, a specification of OpenCL talks about its constructs, programming and memory model. Therefore only essential constructs that are used in implementation are described in the report. 
+Code is written in C on the host and OpenCL C is used to write kernels to be executed on the device. The overall process of setting up the OpenCL environment will be dropped for this project as there are plenty of resources, from original Khronos materials to tutorial in the Internet, that guide a beginner programmer. Moreover, a specification of OpenCL talks about its constructs, programming and memory model. Therefore only essential constructs that are used in implementation are described in the report. 
 
-The global worksize of computation on GPU is dependant on specified size of the simulated grid. A human-readable definition file is used to set parameters and create the benchmark problem to be simulated by solver. In Griebel's code the paramaters are originally specified in inputfile, but the geometry of the boundaries is hardcoded in the source code. This was left unchanged.
+The global worksize of computation on GPU is dependant on specified size of the simulated grid. A human-readable definition file is used to set parameters and create the benchmark problem to be simulated by solver. In Griebel's code the parameters are originally specified in inputfile, but the geometry of the boundaries is hardcoded in the source code. This was left unchanged.
 
 Implementation consists of sets of kernels for every of the functions from original code. Modularity was thus maintained, but the effect that it has on overall performance (loading many small kernels vs. a few complex kernels) needs to be determined in tests.
 
 Griebel's code have some intrinsics. For instance, the original code seems to be written for maximal readability and conformance with the content in the book. Thus ghost cells for boundary conditions are additionally allocated.
 
 Code proved to be portable and works under both on Windows and Unix platforms without any additional changes. The code for the project was first and foremost implemented on Windows 7 platform. The eventual execution on Linux platform was pushed to the test part of implementation. Compilers used are nvcc and Visual Studio on Windows. gcc is used on Linux.
-
-
 
 \subsection{Benchmarking code}
 Code is timed with standard library time.h clock function. The OpenCL profiling timer is not used in this code because the goal is to measure wall clock time on CPU. Code can be timed with buffer allocation and reading it or without. To compare the performance with CPU that accesses its memory on a constant basis, the memory allocation on the device and then later reading it back should be counted in for a fair comparison.
@@ -55,3 +71,5 @@ To implement a naive kernel, an easiest approach is to strive for the straightfo
 Implementing shared memory kernels usually does not require any changes in the underlying algorithm. Instead, focus is pushed to the host where the kernel is executed and code of each kernel is tuned by finding optimal configuration for work item/ work groups. This is most often done through straightforward timing experiments and brute-force testing.
 
 Another guideline for optimal OpenCL development is that production code should systematically check the error code returned by each API call and check for failures in kernel launches (or groups of kernel launches in the case of concurrent kernels). 
+
+No comparison to other project except a code by Intel\cite{intel2012fluid}

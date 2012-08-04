@@ -1,6 +1,6 @@
 \chapter{Conclusions}
 \section{General}
-The goal of the project was to get acquainted with programming for GPU using OpenCL technology. This project was meant as an introduction to the technology, although some initial experience was already gathered during High Performance Computing course that took place at DTU in January 2012. However, at this course another technology was used.Despite the fact that CUDA has a lot of in common with OpenCL, work on this project showed that assimilation of OpenCL's pipeline may take time. In addition, OpenCL lacks many basic tools like cross-platform debugger or profiler as for now. However, as most of the time and effort in GPU programming is spent on developing and optimizing the kernel code. This proved to be independent from the used technology and yield the best optimization results.
+The goal of the project was to get acquainted with programming for GPU using OpenCL technology. This project was meant as an introduction to the technology, although some initial experience was already gathered during High Performance Computing course that took place at DTU in January 2012. However, at this course another technology was used. Despite the fact that CUDA has a lot of in common with OpenCL, work on this project showed that assimilation of OpenCL's pipeline may take time. In addition, OpenCL lacks many basic tools like cross-platform debugger or profiler as for now. However, as most of the time and effort in GPU programming is spent on developing and optimizing the kernel code. This proved to be independent from the used technology and yield the best optimization results.
 
 Furthermore, author had no prior experience with CFD codes or algorithmic optimizations of numerical methods. If there was any one could come up with implementation of other numerical method that could be easier to parallelize earlier. Thus, plenty of time was spent on seeking kernel optimizations in place where serious algorithmic optimization should take place as it was with relaxation and residual kernel.
 
@@ -17,10 +17,10 @@ Usually a following effect can be observed on GPUs. With the problem growing in 
 The only Profiler used was NVIDIA's Visual Profiler. Optimization guidelines it gives for OpenCL code was found vague. Moreover, it seems to be unable to collect all of the data needed to construct thorough statistics. However, the timeline still helps in development as it shows the execution process of consequent kernels.
 
 \section{Improvements}
-\subsubsection{Optimizing and testing each kernel separately}
+\subsubsection{Optimize and test each kernel separately}
 Probably the most obvious improvement for the project would be to test every kernel on its own taking it apart form the whole algorithm and optimizing it to the most extent. During this project, an implementation that would yield the same correct results as the provided sequential code base was primarily sought. Ensuring that this was satisfied was not straightforward
 
-\subsubsection{More optimized kernels}
+\subsubsection{Optimize the kernels more}
 Shared memory kernels could be more thoroughly investigated, i.e. more sizes of rectangular workgroups and their different sizes could be investigated. Following the experience gathered in High Performance Computing course, where a matrix multiplication kernel was implemented, only concrete local work sizes where investigated. Every platform varies and differently maps the OpenCL workgroups to its resources and this should be further investigated. OpenCL needs to be customized for every platform separately. 
 
 \subsubsection{Parallelism on the level of kernels and events}
@@ -32,7 +32,7 @@ Kernel compiler that is called through \texttt{clBuildProgram} in the host code 
 \subsubsection{Profile code on AMD platform}
 AMD APP SDK provides tools for debugging, analysing and profiling code on AMD platform. No  experiences in work with them (minor with debugger) were gathered as code was developed and tested mainly on NVIDIA platform 
 
-\subsubsection{More problems from the book}
+\subsubsection{Benchmark More problems from the book}
 The original code works with Free Boundary Value problems and the book shows simulations of such problems. These problems are real benchmarks for the implemented solver and prove that solver is valid. Solver can be configured to gather data that later can be used for visualisation of the problems.
 
 \subsubsection{Implement Red-Black Gauss-Seidel Kernel}
@@ -41,7 +41,7 @@ The SOR iteration method (that is a customised form of inherently serial Gauss-S
 \subsubsection{Use OpenCL C++ Wrapper}
 Development in C and using OpenCL Platform API in host code might be cumbersome and result in huge codebase. What should be most of the time be optimized is written in OpenCL C in kernel code run on device. Thus it does not matter much how the kernel code is initialized and how the OpenCL Platform API is called on the host. As long as the memory is initialized so as the OpenCL memory objects can be created and all the OpenCL pipeline can be constructed, the host code could be implemented in any language. C++ is a natural choice, but is not still fully supported by OpenCL, e.g. kernels cannot be templated to be called with different parameters determined in runtime. For clean code though C++ wrapper could be used. There are already open-source libraries built on top of it available in the net that simplifies the OpenCL usage further.
 
-\subsubsection{Vector Types}
+\subsubsection{Use Vector Types}
 OpenCL specification 1.1 introduced vector operations and vector variables, but these were not used in this project and thus not investigated, although they could yield promising results on specific device architectures that support vector instructions. SSE/AVX instructions and VLIW architecures come into mind. 
 
 

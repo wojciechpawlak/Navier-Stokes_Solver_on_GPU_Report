@@ -1,6 +1,6 @@
 \chapter{Performance Analysis}
 \section{General}
-For detailed analysis of the kernel performance various conditions should be checked. Test of OpenCL application should be run across different architectures to check its portability and how code behaves on different machines. The kernels should also scale with problem size. Speedups should be measured between version that execute on host and on devce. Finally, as the computation is done on floating point number, comparison between single and double precision might yield interesting results.
+For detailed analysis of the kernel performance various conditions should be checked. Test of OpenCL application should be run across different architectures to check its portability and how code behaves on different machines. The kernels should also scale with problem size. Speedups should be measured between version that execute on host and on device. Finally, as the computation is done on floating point number, comparison between single and double precision might yield interesting results.
 
 Synchronization between work-items is possible only within workgroups using barriers and memory fences. It is not possible to synchronize workitems that are in different workgroups as this would hinder data parallelism.
 
@@ -9,6 +9,20 @@ Memory management is explicit, so a programmer moves data from host to global me
 Workgroup size for a given algorithm should be selected in such way as to be an even multiple of the width of the hardware scheduling units.
 
 Events can be used to synchronize multiple kernels that are in the queue.
+			
+
+\subsection{Timing performance}
+OpenCL calls and kernel executions can be timed using either CPU or GPU timers. This section examines the functionality, advantages, and pitfalls of both approaches.\cite{nvidia2009openclbest}
+
+Using CPU Timers
+Any CPU timer can be used to measure the elapsed time of an OpenCL call. \cite{nvidia2009openclbest}
+
+When using CPU timers, it is critical to remember that some OpenCL function calls can be non-blocking; that is, they return control back to the calling CPU thread prior to completing their work. All kernel execution enqueue calls are non-blocking; so are all memory transfer enqueue calls with the blocking parameter set to true.Therefore, to accurately measure the elapsed time for a particular call or sequence of OpenCL calls, it is necessary to synchronize the CPU thread with the GPU by calling clFinish() for all command queues immediately before starting and stopping the CPU timer. clFinish()blocks the calling CPU thread until all OpenCL calls previously issued by the thread are completed.\cite{nvidia2009openclbest}
+
+Using OpenCL GPU Timers
+
+Each enqueue call optionally returns an event object that uniquely identifies the enqueued command. The event object of a command can be used to measure its execution time if as detailed in Section 5.9 and illustrated in Listing 2.1. Profiling can be enabled by setting the $CL_QUEUE_PROFILING_ENABLE$ flag in properties argument of either clCreateCommandQueue or clSetCommandQueueProperty.\cite{nvidia2009openclbest}
+
 
 \section{Computed results}
 For computed results the effective bandwidth should be compared with theoretic maximal bandwidth. This way the occupancy of the device can be measured.
@@ -22,6 +36,22 @@ Bandwidth between host and device should be kept high alll the time.
 Data Transfer Between Host and Device
 
 PCIe Bus is used to connect between CPU and GPU 
+(8 GBps on the PCI Express ×16 Gen2).
+Hence, for best overall application performance, it is important to minimize data
+transfer between the host and the device, even if that means running kernels on the
+GPU that do not demonstrate any speed-up compared with running them on the
+host CPU.
+
+
+Intermediate data structures should be created in device memory, operated on by
+the device, and destroyed without ever being mapped by the host or copied to host
+memory.\cite{nvidia2009openclbest}
+
+Also, because of the overhead associated with each transfer, batching many small
+transfers into one larger transfer performs significantly better than making each
+transfer separately.\cite{nvidia2009openclbest}
+
+
 
 Coalescing global memory accesses
 
