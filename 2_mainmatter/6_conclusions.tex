@@ -1,92 +1,62 @@
 \chapter{Conclusions}
 \section{General}
-Design and implement a scientific computing application for execution on GPUs.
+The goal of the project was to get acquainted with programming for GPU using OpenCL technology. This project was meant as an introduction to the technology, although some initial experience was already gathered during High Performance Computing course that took place at DTU in January 2012. However, at this course another technology was used.Despite the fact that CUDA has a lot of in common with OpenCL, work on this project showed that assimilation of OpenCL's pipeline may take time. In addition, OpenCL lacks many basic tools like cross-platform debugger or profiler as for now. However, as most of the time and effort in GPU programming is spent on developing and optimizing the kernel code. This proved to be independent from the used technology and yield the best optimization results.
 
-Verify and validate implemented scientific computing application using standard benchmarks.
+Furthermore, author had no prior experience with CFD codes or algorithmic optimizations of numerical methods. If there was any one could come up with implementation of other numerical method that could be easier to parallelize earlier. Thus, plenty of time was spent on seeking kernel optimizations in place where serious algorithmic optimization should take place as it was with relaxation and residual kernel.
 
-Skillfully analyze performance of implemented PDE solver.
+Problems with bandwidth and minimizing transfer between the host and the device were met due to the modularity of the implementation. Solver consists of a number of functions executed in time-stepping loop. For SOR relaxation, the most memory-bound kernels are iterated many time to achieve satisfying results. No single kernel can be created to solve the Navier-Stokes equations. Instead a number of separate kernels need to initialized and then synchronized. The goal is to keep the memory transfer low and try to keep the occupancy of computing cores high. It may be achieved through using local memory and overlap of memory transfers and computations. With just a sequential CPU implementation at hand and no similar projects with open code implemented on GPU to compare to, the task was significantly harder to be solved. In addition, no suitable libraries that could be used for comparison are freely available.
 
-Apply optimization techniques for improving performance of PDE solver on GPUs.
+To check what is the result of minimization of use of global memory, every kernel was implemented in version utilizing shared memory.
 
-Understand how to write a parallel program using OpenCL for heterogenous computing on many-core architectures.
+Moreover, computations on single and double precision floating point numbers were investigated. Double-precision is a must in scientific computations, but it pose significant limitation for performance. The GPUs depending on the models deal considerably better or worse with double-precision floating point numbers. GPUs targeted for scientific market like Tesla Fermi architecture have significantly better performance in comparison to GPUs like ordinary Fermi architecture cards meant for fast computation of single-precision floating point numbers sufficient for graphics market. 
 
-Apply basic principles for numerical approximation/discretization.
+One of the main motivations to use OpenCL is its portability. However, this technology is only that much competitive as much optimized given platform. In other words, OpenCL may give significant performance boost, but to maximize it an effort to optimize it for every platform separately is needed.
 
+Usually a following effect can be observed on GPUs. With the problem growing in size, speedup on GPU grows due to the ratio of computations to memory transfers grow. In other words, for large grids more time is spent on calculation then on transferring memory from host to device and vice versa. In this project this effect was hindered as a set of kernels was used. Moreover, due to intrinsics of the used iterative numerical method (SOR overrelaxation for solving Poisson pressure equation) the kernels are executed significantly more times for larger grids.  This introduce a new layer of problems and new synchronization problems.
 
-
-The project's goal was to get acquainted with doing computations on GPU.
-
-No prior experience with CFD codes and optimizations of numerical methods. If had any could come up with implementation of other numerical method that could be easier to parallelize. 
-
-No prior experience with OpenCL (in most parts the same as CUDA, but lack tools)
-
-Lot of problems with constructing even the naive kernel as to get the maximum benefit from parallelizing code on GPU, focus should be first drawn to find ways to parallelize sequential code. Code was thus looked as subblocks of same computations. Most data parallelism should be found.
-
-Problems with bandwidth and minimizing transfer between the host an the device, because it was not directly possible to create a kernel from many parts of the algorithm. Examples were researched. Stencil code implementations were found.
-
-To watch the results of minimization in the use of global memory, some version of kernels were implemented. Prefer shared memory access where possible. 
-
-
-Float and double precision.
-
-Other platforms
-
-Different sizes of arrays with regular step
-
-NVIDIA Profiler used
+The only Profiler used was NVIDIA's Visual Profiler. Optimization guidelines it gives for OpenCL code was found vague. Moreover, it seems to be unable to collect all of the data needed to construct thorough statistics. However, the timeline still helps in development as it shows the execution process of consequent kernels.
 
 \section{Improvements}
-\subsubsection{More optimized kernels}
+\subsubsection{Optimizing and testing each kernel separately}
+Probably the most obvious improvement for the project would be to test every kernel on its own taking it apart form the whole algorithm and optimizing it to the most extent. During this project, an implementation that would yield the same correct results as the provided sequential code base was primarily sought. Ensuring that this was satisfied was not straightforward
 
+\subsubsection{More optimized kernels}
+Shared memory kernels could be more thoroughly investigated, i.e. more sizes of rectangular workgroups and their different sizes could be investigated. Following the experience gathered in High Performance Computing course, where a matrix multiplication kernel was implemented, only concrete local work sizes where investigated. Every platform varies and differently maps the OpenCL workgroups to its resources and this should be further investigated. OpenCL needs to be customized for every platform separately. 
+
+\subsubsection{Parallelism on the level of kernels and events}
+In final implementation kernels were let be enqueued asynchronously and not be synchronized using events. This should lead to overlapping of kernel executions as the next kernel would be started before the previous would finish
+
+\subsubsection{Optimization Options in Kernel Compiler}
+Kernel compiler that is called through \texttt{clBuildProgram} in the host code to build a OpenCL program out of source code with kernels can be provided with compilation options. These were not investigated, but it can be used to change e.g. the precision of floating point numbers through \texttt{-cl-fast-relaxed-math} and other behaviour of code on the GPU.
 
 \subsubsection{Profile code on AMD platform}
+AMD APP SDK provides tools for debugging, analysing and profiling code on AMD platform. No  experiences in work with them (minor with debugger) were gathered as code was developed and tested mainly on NVIDIA platform 
 
 \subsubsection{More problems from the book}
-
+The original code works with Free Boundary Value problems and the book shows simulations of such problems. These problems are real benchmarks for the implemented solver and prove that solver is valid. Solver can be configured to gather data that later can be used for visualisation of the problems.
 
 \subsubsection{Implement Red-Black Gauss-Seidel Kernel}
+The SOR iteration method (that is a customised form of inherently serial Gauss-Seidel algorithm) proved to pose severe limitations on the parallelization process and running it on GPU due to the fact it is an iterative method. The stencil used in this method is dependant on an order of computations, i.e. some of the cells need to be computed at the time values for given cell are computed. On GPU the order cannot be satisfied and implemented in straightforward manner not say it is impossible. Synchronization on device is only possible within the workgroup and the order of executions of work-item is usually undefined due to the many factors such as following branches. GPUs work best on algorithms that can be mapped to a lot of data at once. A solution to this issiue may be to use Multi-color scheme like red-black Gauss-Seidel. This method allows to reduce dependencies. This method devides single iteration into two and divides the grid into a red-black checkboard. First sweep is done only on red cells and second sweep is done only on black cells. Naturally, this comes in expense of reduced algorithmic efficiency, because more iterations are necessary to achieve the same accuracy level. Moreover, Gauss-Seidel is usually compared with Jacobi method, which itself offers better parallelization possibilities than normal Gauss-Seidel-based methods.
 
-multi-color scheme
+\subsubsection{Use OpenCL C++ Wrapper}
+Development in C and using OpenCL Platform API in host code might be cumbersome and result in huge codebase. What should be most of the time be optimized is written in OpenCL C in kernel code run on device. Thus it does not matter much how the kernel code is initialized and how the OpenCL Platform API is called on the host. As long as the memory is initialized so as the OpenCL memory objects can be created and all the OpenCL pipeline can be constructed, the host code could be implemented in any language. C++ is a natural choice, but is not still fully supported by OpenCL, e.g. kernels cannot be templated to be called with different parameters determined in runtime. For clean code though C++ wrapper could be used. There are already open-source libraries built on top of it available in the net that simplifies the OpenCL usage further.
 
-This allows you to reduce
-dependencies. That it, run the iteration on a red-black checkerboard.
-First sweep is  red only and second sweep is black only.
-
-Probably the most straightforward thing is to exchange SOR with a
-Red-black Gauss-Seidel to increase parallelism, however, this comes as the
-expense of reduced algorithmic efficiency (i.e. more iterations to achieve
-a given accuracy level). 
-
-\subsubsection{Use C++ Wrapper}
-
-
+\subsubsection{Vector Types}
+OpenCL specification 1.1 introduced vector types, but these were not used in this project and thus not investigated, although they could yield promising results on specific device architectures that support vector instructions. SSE/AVX instructions and VLIW architecures come into mind.
 
 \subsubsection{Use Image Format}
 Another type of memory object supported by OpenCL could be used and tested, namely images. They are optimized for two-dimensional access patterns. Such access was used in this project as grids of cells are two-dimensional. The challenge would be to learn how to work with this type of memory object as the data stored in it is accessible only through specialized access functions. In comparison, the buffer objects that were used map directly to the standard array representation that programmers are used to when using C programming language.
 
-
 \section{Future Work}
 
 \subsubsection{3D Grid}
+When satisfying results would be achieved in two-dimensions, another dimension could be added. This would introduce new challenges, but GPUs are ready to support such grids and there are many successful projects, also mentioned in this report, that simulate similar CFD problems in 3D. This would impose investigation of a wide array of different workgroup sizes.
 
 \subsubsection{Multigrid method}
-a multigrid approach which would lead to good efficiency and
-scalability. 
-
- doing multigrid requires some basic understanding of
-the numerical discretization methods. 
-
- Essentially the multigrid method can be constructed from
-a few simple kernels (prolongation, restriction, Jacobi/GaussSeidel/Sor
-smoothening and a grid hierarchy)
-
+A multigrid approach could be implemented as another step of algorithmic parallelization of numerical method used to solve Navier-Stokes equations. This would lead to better efficiency and scalability and the GPUs could be targeted. As doing multigrid requires some more understanding of the numerical discretization methods, this idea was dropped for this project. Essentially though the multigrid method could be implemented in form of a few simple kernels that would perform prolongation, restriction, Jacobi, Gauss-Seidel or SOR smoothening and manage a grid hierarchy.
 
 \subsubsection{Distributed calculations}
-MPI
-
+While a size of a simulated grid is increased, a limit of memory resources is met. Form here the only way to increase the size of computed grid, is to decompose the problem and spread it over a number of devices. The results would then be gathered from these devices. Devices could be on the same machine or on the remote machine. Technologies like MPI allow to implement communication between such devices. If the project was sufficently optimized on single GPU, it would interesting to see how it perform on cluster of GPUs.
 
 \subsubsection{Mobile platform}
-
-% Do it as a list.
-
-Solution could be simulated on Tegra chip on Android Platform to check the performance of computation on yet another type of platform. This time a mobile GPU would be used. Such
+Recently GPUs started to be installed on mobile devices like smartphones. Solution could be simulated on Tegra chip on Android Platform to check the performance of computation on yet another type of platform. Such investigation was not much reserached recently and would rather check a general feasibility of such implementation than yield any extraordinary performance.

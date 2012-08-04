@@ -1,6 +1,12 @@
 \chapter{Design and Implementation}
 
 \section{Design}
+The design of the code is based on the implementation by Griebel et al. that is presented in their book\cite{griebel1998numerical}. Description of most of the functions is featured in the book, so here only the functions that were changed will be described.
+
+To allow for computations on boundaries, ghost cells need to be allocated.
+
+
+ Necessary changes had to be introduced to allow it to work with GPU. First of all, the OpenCL platform needs to instantiated and 
 
 The most common form for a stream to take in GPGPU is a 2D grid because this fits naturally with the rendering model built into GPUs.
 
