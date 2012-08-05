@@ -12,16 +12,16 @@ Events can be used to synchronize multiple kernels that are in the queue.
 			
 
 \subsection{Timing performance}
-OpenCL calls and kernel executions can be timed using either CPU or GPU timers. This section examines the functionality, advantages, and pitfalls of both approaches.\cite{nvidia2009openclbest}
+OpenCL calls and kernel executions can be timed using either CPU or GPU timers. This section examines the functionality, advantages, and pitfalls of both approaches.\cite{nvidia2011openclbest}
 
 Using CPU Timers
-Any CPU timer can be used to measure the elapsed time of an OpenCL call. \cite{nvidia2009openclbest}
+Any CPU timer can be used to measure the elapsed time of an OpenCL call. \cite{nvidia2011openclbest}
 
-When using CPU timers, it is critical to remember that some OpenCL function calls can be non-blocking; that is, they return control back to the calling CPU thread prior to completing their work. All kernel execution enqueue calls are non-blocking; so are all memory transfer enqueue calls with the blocking parameter set to true.Therefore, to accurately measure the elapsed time for a particular call or sequence of OpenCL calls, it is necessary to synchronize the CPU thread with the GPU by calling clFinish() for all command queues immediately before starting and stopping the CPU timer. clFinish()blocks the calling CPU thread until all OpenCL calls previously issued by the thread are completed.\cite{nvidia2009openclbest}
+When using CPU timers, it is critical to remember that some OpenCL function calls can be non-blocking; that is, they return control back to the calling CPU thread prior to completing their work. All kernel execution enqueue calls are non-blocking; so are all memory transfer enqueue calls with the blocking parameter set to true.Therefore, to accurately measure the elapsed time for a particular call or sequence of OpenCL calls, it is necessary to synchronize the CPU thread with the GPU by calling clFinish() for all command queues immediately before starting and stopping the CPU timer. clFinish()blocks the calling CPU thread until all OpenCL calls previously issued by the thread are completed.\cite{nvidia2011openclbest}
 
 Using OpenCL GPU Timers
 
-Each enqueue call optionally returns an event object that uniquely identifies the enqueued command. The event object of a command can be used to measure its execution time if as detailed in Section 5.9 and illustrated in Listing 2.1. Profiling can be enabled by setting the $CL_QUEUE_PROFILING_ENABLE$ flag in properties argument of either clCreateCommandQueue or clSetCommandQueueProperty.\cite{nvidia2009openclbest}
+Each enqueue call optionally returns an event object that uniquely identifies the enqueued command. The event object of a command can be used to measure its execution time if as detailed in Section 5.9 and illustrated in Listing 2.1. Profiling can be enabled by setting the $CL_QUEUE_PROFILING_ENABLE$ flag in properties argument of either clCreateCommandQueue or clSetCommandQueueProperty.\cite{nvidia2011openclbest}
 
 
 \section{Computed results}
@@ -45,11 +45,11 @@ host CPU.
 
 Intermediate data structures should be created in device memory, operated on by
 the device, and destroyed without ever being mapped by the host or copied to host
-memory.\cite{nvidia2009openclbest}
+memory.\cite{nvidia2011openclbest}
 
 Also, because of the overhead associated with each transfer, batching many small
 transfers into one larger transfer performs significantly better than making each
-transfer separately.\cite{nvidia2009openclbest}
+transfer separately.\cite{nvidia2011openclbest}
 
 
 
