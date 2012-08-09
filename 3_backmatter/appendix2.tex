@@ -1,2 +1,48 @@
 \appChapter{Appendix: Platforms and devices}
 
+\begin{tabular}{|c|c|c|}
+\hline 
+OpenCL Devices & & \\
+\hline 
+Parameter         &                Device 1 (GPU)             &       Device 2 (CPU) \\ 
+\hline                    
+Platform ID       &                1                         &        2                        \\
+Device Type          &             GPU                  &             CPU                               \\
+Device Name                 &      GeForce GT 550M                        & Intel(R) Core(TM) i7-2630QM CPU @ 2.00GHz \\
+Vendor                  &          NVIDIA Corporation               & Intel(R) Corporation              \\
+Command Queue Properties   &       Out-of-order execution mode, Queue profiling &Out-of-order execution mode, Queue profiling \\
+Is Available                &      Yes            &                   Yes                               \\
+Is Compiler Available       &      Yes          &                     Yes                               \\
+Single FP Config         &         & Denorms, INF and NaNs, Round to nearest \\
+Double FP Config          &       &  \\
+Half FP Config         &          Unknown / unsupported    &         Unknown / unsupported     \\        
+Is Little Endian                  Yes                  &             Yes                               \\
+Error Correction Support          No                   &             No                                \\
+Execution Capabilities          &  Kernel Execution      &            Kernel Execution, Native Kernel Execution \\
+Global Memory Cache Size    &      32 KB                &             256 KB              \\              
+Memory Cache Type        &         Read Write          &              Read Write                        \\
+Global Memory Cache Line Size &    128 bytes         &                64 bytes             \\             
+Global Memory Size     &           2,048 MB            &              4,096 MB            \\              
+Host Unified Memory       &        No                 &               Yes                               \\
+Are Images Supported       &       Yes                 &              Yes                               \\
+Max Image 2D Dimensions     &      (1024w, 1024h)       &             (1024w, 1024h)            \\        
+Max Image 3D Dimensions      &     (1024w, 1024h, 64d)  &             (1024w, 1024h, 1024d)      \\       
+Local Memory Size       &          48 KB             &                32 KB                             \\
+Local Memory Type        &         Local             &                Global               \\             
+Max Clock Frequency       &        1480              &                2000                              \\
+Max Compute Units        &         2                 &                8                                 \\
+Max Constant Arguments       &     9                 &                480                               \\
+Max Constant Buffer Size      &    64 KB             &                128 KB    \\                        
+Max Memory Allocation Size     &   512 MB            &                1,024 MB        \\                  
+Max Parameter Size        &        5 KB              &                4 KB                              \\
+Read Image Arguments     &         128               &                480                               \\
+Max Samplers              &        16                &                480                               \\
+Max Workgroup Size       &         1024              &                1024                              \\
+Max Work Item Dimensions     &     3                 &                3                                 \\
+Max Work Item Sizes       &        (1024,1024,64)                   & (1024,1024,1024)         \\         
+Max Write Image Arguments    &     8                    &             480                               \\
+Memory Base Address Alignment  &   4096                 &             1024                              \\
+Minimal Data Type Alignment Size & 128 bytes           &              128 bytes               \\          
+OpenCL C Version                  OpenCL C 1.1        &              OpenCL C 1.1                       \\
+\hline 
+\end{tabular} 

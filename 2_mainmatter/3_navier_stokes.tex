@@ -86,9 +86,9 @@ to the left, and to the lower left, respectively. Therefore vertical boundaries 
 
 \figuremacroW{disc_domain_bound}{Domain with boundary cells.}{Domain with boundary cells.\cite{griebel1998numerical}}{0.6}
 
-Such staggered setup of the unknowns prevents possible pressure oscillations which could occur if all three unknown functions $u$, $v$ and $p$ at the same grid points. Another alternatives to staggered grid may be e.g. colocated grid.
+Such staggered setup of the unknowns prevents possible pressure oscillations which could occur if all three unknown functions $u$, $v$ and $p$ at the same grid points. Another alternatives to staggered grid may be e.g. collocated grid.
 
-Just to illustrate the method, e.g. the continuity equation \ref{eq:2d_navier_div} is discretized at the center of each cell $(i,j)$ by replacing the spatial derivatives $\frac{\partial u}{\partial x}$ and $\frac{\partial v}{\partial y}$ by centered differences using half the mesh width:
+Just to illustrate the method, e.g. the continuity equation \ref{eq:2d_navier_div} is discretized at the center of each cell $(i,j)$ by replacing the spatial derivatives $\frac{\partial u}{\partial x}$ and $\frac{\partial v}{\partial y}$ by centred differences using half the mesh width:
 
 \begin{equation}
 	\begin{array}{c c}

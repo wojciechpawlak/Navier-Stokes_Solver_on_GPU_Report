@@ -1,166 +1,117 @@
 \chapter{Performance Analysis}
 \section{General}
-For detailed analysis of the kernel performance various conditions should be checked. Test of OpenCL application should be run across different architectures to check its portability and how code behaves on different machines. The kernels should also scale with problem size. Speedups should be measured between version that execute on host and on device. Finally, as the computation is done on floating point number, comparison between single and double precision might yield interesting results.
+For detailed analysis of the kernel performance various conditions should be checked. Previous section proposes optimizations. This one tries to analyse if they are practical to use. Test of OpenCL application should be run across different architectures to check its portability and how code behaves on different machines. The kernels should also scale with problem size. Speedups should be measured between version that execute on host and on device. Finally, as the computation is done on floating point number, comparison between single and double precision might yield interesting results.
 
-Synchronization between work-items is possible only within workgroups using barriers and memory fences. It is not possible to synchronize workitems that are in different workgroups as this would hinder data parallelism.
+\section{Timing performance}
+OpenCL calls and kernel executions can be timed using either CPU or GPU timers. In terms of CPU, any CPU timer can be used to measure the elapsed time of an OpenCL call. \cite{nvidia2011openclbest}. However, it is critical to remember that some OpenCL function calls can be non-blocking, i.e. they return control back to the calling CPU thread prior to completing their work. While using OpenCL GPU Timers, each enqueue call optionally returns an event object that uniquely identifies the enqueued command. The event object of a command can be used to measure its execution time. Profiling can be enabled by setting the \texttt{CL\_QUEUE\_PROFILING\_ENABLE} flag in properties argument of either \texttt{clCreateCommandQueue()} or \texttt{clSetCommandQueueProperty()}.\cite{nvidia2011openclbest}
 
-Memory management is explicit, so a programmer moves data from host to global memory of device first using OpenCL constructs. Then it can be moved to local memory. To read the results from the device local memory on the host the process has to be reverted step by step.
+\section{Overall runtime and performance}
+On the NVIDIA platform, naive kernels were implemented for stencil functions. Moreover, parts of code were implemented that could have gains in performance thanks to reduction process done and optimized on GPU, e.g. residual computation. Approach used by \cite{christensen2012report} was imitated and yielded performance optimization for 3 first reduction kernels. No optimized library routine was checked as none was found to be feasible in this setup.
+
+\figuremacroW{cpu_gpu_runtime}{Exemplary Runtime - CPU vs. Best GPU Configuration}{Exemplary Runtime - CPU vs. Best GPU Configuration on NVIDIA 550M}{1}
+
+Runtime is counted taking into consideration writing to and reading from the memory on the device.
+
+Performance is measured in GFLOP/s. Kernels vary in the number of floating point operations.
+
+\figuremacroW{cpu_gpu}{Performance - CPU vs. Best GPU Configuration}{Performance - CPU vs. Best GPU Configuration on NVIDIA 550M}{1}
+
+\begin{tabular}{|c|c|}
+\hline 
+\texttt{COMP\_TEMP\_kernel} & imax*jmax$\times$(21 additions + 20 multiplications) \\ 
+\hline 
+\texttt{COMP\_FG\_kernel} & imax$\times$jmax$\times$(33 adds + 19 muls) $\times$ 2 (F \& G) \\ 
+\hline 
+\texttt{COMP\_RHS\_kernel} & imax$\times$jmax$\times$(3 adds) \\ 
+\hline 
+\texttt{POISSON\_p0\_kernel} & imax$\times$jmax$\times$(1 add + 1 mul) \\ 
+\hline 
+\texttt{POISSON\_2\_copy\_boundary\_kernel} & itermax$\times$imax$\times$jmax $\times$(1 add + 1 mul) \\ 
+\hline 
+\texttt{POISSON\_2\_relaxation\_kernel} & itermax$\times$imax$\times$jmax $\times$(5 adds + 4 muls) \\ 
+\hline 
+\texttt{ADAP\_UV\_kernel} & imax$\times$jmax$\times$(2 adds + 1 mul) $\times$ 2 (U \& V) \\ 
+\hline 
+\end{tabular} 
+
+Speedup is a ratio between performance of set kernel on GPU to its original version run on CPU.
+
+While choosing the size of the grid for this project, padding the whole grid with ghost cells for boundary conditions is necessary. This means that the simulated grid in reality is smaller by in width and height.
+
+Versions with and without residual calculation step were tested and proved that this step is a bottleneck. To achieve better speedups the accuracy of final result had to be sacrificed and a step was dropped for the most optimal results. Computing a residual is the way to measure the convergence in the iterative solver as it is used as a stop criterion. As the distances between gridlines get smaller, the more detailed the discretization is and more iteration are needed. This was observed in this implementation and it  hinders the performance of the solution.
+
+\figuremacroW{outres_withres}{Performance - Code without Residual Computation vs. Code with Residual Computation GPU Configuration}{Performance - Code without Residual Computation vs. Code with Residual Computation GPU Configuration on NVIDIA 550M}{1}
+
+Furthermore, the relaxation part of the kernel was calculated on the host due to the complications in implementing it on GPU. Once again it was due the fact that a stencil that the SOR method use is tightly bound with the order of computation. The obvious solution once again is to adopt an algorithm that is more suitable for this platform. Essentially all the code should be computed on GPU device only, even if that means running kernels that do not demonstrate any speed-up compared with running them on the host CPU. The data should be transferred to device once in the beginning and next time it should be retrieved from there is when all the computation is over and results should be displayed. In other words, intermediate data structures should be created in device memory, operated on by the device, and destroyed without ever being mapped by the host or copied to host memory.\cite{nvidia2011openclbest} Morover, as each transfer has the overhead associated with it, many small transfers should be batched into one larger transfer. It performs significantly better than making each transfer separately.\cite{nvidia2011openclbest} Such approach was taken in the project where data is wrote to the device once in the beginning to all the used buffers and then all the reading is than as a batch in the end. An example of intermediate buffer that is used only on the device is a buffer that stores new temperature values in kernel that computes temperature. 
+
+In addition, bandwidth between host and device should be kept high all the time. This means, that for computed results the effective bandwidth should be compared with theoretical maximal bandwidth. This way the occupancy of the device can be measured. In this project it was achieved by using a large enough workgroup size so that all the streaming multiprocessors have job to do.
+
+As a main conclusion, it can be claimed that a main prohibiter of performance and its optimization was an algorithm itself. In its basic version as in the Griebel's code it does not expose much data parallelism so suitable for GPUs. In this project, an overall process of porting the implementation to GPU was very quickly inhibited by the number of iterations in Poisson SOR relaxation and thus algorithmic optimization must be sought quickly. Changing the algorithm to suit GPU better was not the main way to achieve the performance optimization for this project, so the results are in general not that optimistic.
+
+Trap of premature optimization should be avoided. The implemented kernel should be always first checked against the sequential code to yield valid results. Moroever, it might be helpful to optimize it in separation from the other kernels used.
+
+\section{Different workgroup size}
+The global size was fixed an different workgroup sizes were investigated. In general, a recommendation to use multiples of 16 was followed and proved to be a true guideline in optimization.
 
 Workgroup size for a given algorithm should be selected in such way as to be an even multiple of the width of the hardware scheduling units.
 
-Events can be used to synchronize multiple kernels that are in the queue.
-			
+\section{Synchronous vs. Asynchronous}
+Iterative methods can achieve convergence faster when they are not synchronized much. This comes in expense of proliferation of read/write data hazards that are obvious performance penalties.
 
-\subsection{Timing performance}
-OpenCL calls and kernel executions can be timed using either CPU or GPU timers. This section examines the functionality, advantages, and pitfalls of both approaches.\cite{nvidia2011openclbest}
+\figuremacroW{sync_async}{Performance - Async vs. Sync GPU Configuration}{Performance - Async vs. Sync GPU Configuration on NVIDIA 550M}{1}
 
-Using CPU Timers
-Any CPU timer can be used to measure the elapsed time of an OpenCL call. \cite{nvidia2011openclbest}
+Global synchronization between kernels and other objects in queues is possible using events and \texttt{clWaitForEvents()} operation. In general, events are used to track the execution status of API calls done on host. For synchronous version this construct is inserted after every \texttt{clEnqueueNDRangeKernel}. It means that host will always synchronize in this place and wait with execution until device will be done with current action in queue, here kernel. In project at hand, consequent kernels are dependant on the order in queue, because they read and write to the same arrays. In general, \texttt{clWaitForEvents()} can be inserted after every operation that take events as parameters. A lot of performance is thus lost, because kernels are specified to wait for one another. For SOR iterative method, a kernel could be also implemented so as to have a synchronization barrier in the end of each iteration, but this was not necessary as code was synchronized in parts were code had to be read form device to be partially computed on the host.
 
-When using CPU timers, it is critical to remember that some OpenCL function calls can be non-blocking; that is, they return control back to the calling CPU thread prior to completing their work. All kernel execution enqueue calls are non-blocking; so are all memory transfer enqueue calls with the blocking parameter set to true.Therefore, to accurately measure the elapsed time for a particular call or sequence of OpenCL calls, it is necessary to synchronize the CPU thread with the GPU by calling clFinish() for all command queues immediately before starting and stopping the CPU timer. clFinish()blocks the calling CPU thread until all OpenCL calls previously issued by the thread are completed.\cite{nvidia2011openclbest}
+Another way of blocking is provided for memory transfer. Here a blocking flag needs to explicitly changed to \texttt{CL\_TRUE}. The queue want be further processed as long as the whole memory will not be transferred and the operation will return.
 
-Using OpenCL GPU Timers
+An asynchronous version is an extreme version, where the smallest subset of constructs are globally synchronized. It was discovered that these are mostly \texttt{clEnqueueReadBuffer()} operations that need to be set a \texttt{CL\_TRUE} blocking flag, but this is not true in all situations. It was observed that if this operation is enqueued with the non-blocking flag just before the code part where this buffer is used, the code yields erroneous results. This is rather self-explanatory as there is no valid data at the buffer yet at the time it is already read. In all the other situations, the code did not need to be explicitly synchronized, surprisingly also not where kernel were enqueued.
 
-Each enqueue call optionally returns an event object that uniquely identifies the enqueued command. The event object of a command can be used to measure its execution time if as detailed in Section 5.9 and illustrated in Listing 2.1. Profiling can be enabled by setting the $CL_QUEUE_PROFILING_ENABLE$ flag in properties argument of either clCreateCommandQueue or clSetCommandQueueProperty.\cite{nvidia2011openclbest}
+Until recently one device meant one queue, but this is about to change with new architectures that have more schedulers as in GCN or Kepler.
 
+It was also proved to be not connected with what kind of memory is used as it was tried with both normal allocation of memory and using pinned memory.
+The conclusion is that it is not worth explicitly synchronize the queue using operation on the host. The approach where all the synchronization is turned off and only a minimum subset of synchronization is used to achieve correct results that match the non-optimized results.
 
-\section{Computed results}
-For computed results the effective bandwidth should be compared with theoretic maximal bandwidth. This way the occupancy of the device can be measured.
+\section{Single vs. Double Precision Floating Point Numbers}
+Double-precision floating point numbers could be used on NVIDIA platform, because it supported \texttt{cl\_khr\_fp64} extension. Moreover, different build options passed to \texttt{clBuildProgram()} can be used to change the behaviour of OpenCL code in terms of floating-point numbers. Namely, following set of options was used at most times:
 
-Trap of premature optimization should be avoided so the kernel should be always first checked against the sequential code to yield valid results.
+\figuremacroW{float_double}{Performance - Single vs. Double-Precision GPU Configuration}{Performance - Single vs. Double-Precision Floating Point Numbers GPU Configuration on NVIDIA 550M}{1}
 
-Visual Profiler Recommendations cane be followed, but they should be first understood
+\begin{itemize}
+\item \texttt{-cl-single-precision-constant} proved to save the programmer a burden of changing all the floating point numbers from default double to single-precision representation that was claimed to be an optimization \cite{nvidia2011openclbest}
+\item \texttt{-cl-denorms-are-zero}
+\item \texttt{-cl-strict-aliasing}
+\item \texttt{-cl-mad-enable}
+\item \texttt{-cl-no-signed-zeros}
+\item \texttt{-cl-fast-relaxed-math}
+\end{itemize}
 
-Bandwidth between host and device should be kept high alll the time.
+Setting those options and changing to single-precision floating point number representation not surprisingly yielded a boost over the double implementation. However, the differences between values computed on the device an the host could be observed in comparison to doubles, which cannot be optimized that much yet, but they yield standard-conformant results.
 
-Data Transfer Between Host and Device
+\texttt{fabs} was the only mathematical function used in code of kernels and it was optimized by compiler.
 
-PCIe Bus is used to connect between CPU and GPU 
-(8 GBps on the PCI Express ×16 Gen2).
-Hence, for best overall application performance, it is important to minimize data
-transfer between the host and the device, even if that means running kernels on the
-GPU that do not demonstrate any speed-up compared with running them on the
-host CPU.
+\section{Normal vs. Pinned memory on NVIDIA}
+NVIDIA OpenCL Best Practices Guide\cite{nvidia2011openclbest} presents the most optimal way to allocate the memory on NVIDIA platform and claims that pinned memory should be used for that. This approach was checked for this project and proved to yield significant increase in performance. 
 
+\figuremacroW{pinned_normal}{Performance - Pinned vs. Normal Memory GPU Configuration}{Performance - Pinned vs. Normal Memory GPU Configuration on NVIDIA 550M}{1}
 
-Intermediate data structures should be created in device memory, operated on by
-the device, and destroyed without ever being mapped by the host or copied to host
-memory.\cite{nvidia2011openclbest}
+Pinned memory is allocated in non-paging RAM memory on the machine, so it can be directly accessed by GPU without unnecessary communication with CPU.  The way to allocate it without copying from host pointer is to pass \texttt{CL\_MEM\_ALLOC\_HOST\_PTR} flag in addition to the type of usage, when the buffer is created using \texttt{clCreateBuffer()}. Then the memory is mapped to the buffer using \texttt{clEnqueueMapBuffer()}. Afterwards, the buffer memory is passed and retrieved form the device in ordinary way.
 
-Also, because of the overhead associated with each transfer, batching many small
-transfers into one larger transfer performs significantly better than making each
-transfer separately.\cite{nvidia2011openclbest}
+In conclusion, this approach proved to give performance boost on NVIDIA platform. It is dependant on the amount of data read into RAM memory.
 
+\section{Local memory}
+The attempt to implement optimized kernels using local memory was taken for all kernels that were implemented in naive version. However, this process proved to be not that straightforward as it is matrix multiplication and similar kind of kernels that are thoroughly presented as an example of high priority optimization technique in literature. Without a doubt, reading from global memory should be minimized and reading form it should be coalesced. However, for kernels like these in the project, a couple of buffers is passed to the kernel and computation is dependant on data from different sources. Thus a couple of shared memories have to be maintained, e.g. to compute temperature values for both velocities in velocity field is needed as well as the old temperature. The same holds for computing $F$ and $G$. To make matters worse, padding must be added to workgroups as these kernels use stencils to compute values. This means that boundary values from neighbouring workgroups need to be padded to workgroup to compute its values correctly without accessing the global memory. This posed a challenge. An approach that could be investigated as an optimization in use of shared memory would be to use a workgroup size that would spread over the whole width of the buffer. Values from global memory would be read row wise as needed row after row, i.e. when the computation would be over with current level another would be read in expense for the previous one that is not needed any more.
 
+On the other hand, the TEMP, FG and POISSON relaxation kernel have a lot of floating-point operations (over 50 for two former ones, 10 for later) that otherwise would need to additionally access global memory. Moreover, stencil with radius 2 need to access four neighbouring cells in average. This is a motivation for pushing the data to workgroup's local memory as these kernels are highly memory bound.
 
-Coalescing global memory accesses
+Yet another drawback of ported functions was the abundance of branching they are dependant on. As it is known, different execution paths on the device should be avoided. The function to set boundary conditions is an example of code that not necessarily should be ported to GPU. On the other hand, one of the best practices is to always try to keep all the computation on the device.
 
-compute capability 2.x
+As a sidenote, on CUDA platform, a popular way to debug and profile code is to set the verbose flag to the nvcc compiler for PTX information about the utilization of shared memory and registers by threads. This can be done with OpenCL using \texttt{-cl-nv-verbose} build option with \texttt{clBuildProgram()}.
 
-Branching and Divergence
-Avoid different execution paths within the same warp.
+\section{Different platforms}
+Most of development was done on NVIDIA and this one was investigate to the most extent. Programming guide and Best practices acted as a guideline and most optimization was achieved. Intel platform is easier to debug though, because as it is a CPU the source code of kernel can be accessed as it would be the same device (which is apparently true) and thus debugged normally. Moreover, on Intel's platform the code is optimized to the vector SSE/AVX instructions. AMD devices that were available are also based on very similar VLIW (Very Long Instruction Word) vector-based approach on the VLIW4/5 architectures.
 
+\section{Different problems}
+Lid-driven cavity problem was simulated at most times. This one is a fixed boundary problem and do not introduce any extraordinary geometry. Furthermore, the boundary conditions are simple.
 
-built-in math functions, fast optimized library
-
-Synchronization on Global and Local barriers
-
-Synchronization between kernels in the queue. All the kernels are waiting for another to finish to work on nits results.
-One device - one queue.
-
-CPU code in VIsual studio 2010 basic release build optimizations on both CPU execution and CPU control parts of GPU execution
-
-Asynchronous reading of memory $CL_FALSE$ instead of $CL_TRUE$
-
-allocating memory without copying from host pointer
-
-No print options in the loop
-
-Workgroup size
-
-Size of the grid
-
-%Essentially you should strive for doing all computations on the device only (unless you aim for very large distributed calculations, which requires some more effort). That is, transfer all necessary data to device and let it stay there for as long as possible while doing calculations and then port the results back to the host in the end.
-%
-%
-%This speedup is on your laptop? For a high-end CPU and GPU I would expect,
-%say, 5 times speedup in a naive transfer due to the difference in on-chip
-%bandwidths for an identical code setup.
-
-\section{Residual Computation}
-%IS it used to measure convergence in the iterative solver? (i.e. Used
-%in a stop criterion?)
-
-Reduction kernel
-
-%Three immediate options
-%1) Use an optimized library routine for the reduction.
-%2) Doen't do the reduction if it only measures convergence. Choose a fixed
-%number of iteration for now, to avoid the reduction step, i.e. Choose an
-%adequate number of fixed iteration that will be used in the calculations.
-%3) Write your own optimized reduction kernel (cf. Report and source code
-%attached from another special course i did with some students last year on
-%efficient sum reduction kernels) or just see if you can simply use the
-%code attached.
-
-
-
-Kernels are executed asynchronously
-queuing memory resources asynchronously
-using events to track the execution status
-
-problem of kernel load overheads and possibly decrease
-necessary loads/stores.
-
-kernels memory bound
-
-%Did you try not to synchronize? Iterative methods may achieve faster
-%convergence rate without synchornization. Danger is read/write hazards
-%which can penalize performance.
-%
-%>Probably it would
-%>simply have to be a barrier in the end of each iteration.
-%Try this
-%
-%
-%Naive kernel means simplest kernel you can think of and without any
-%optimizations. Go for correctness first and then optimize and measure
-%improvements against this naive kernel. This is one good development
-%strategy.
-
-
-%Reduction kernels
-%Yes it is a reduction kernel which requires global communication. This can
-%be optized quite far as described in the report by Klaus and Max which I
-%gave to you (as I recall).
-
-
-%>The overall
-%>performance of the solver mostly depends on the number of iteration
-%>and how many time each kernel is run and what type of kernel is this
-%>(whether a simple map or a reduction or stencil). There is an overall
-%>speedup when max number of iterations is small (say 20). For 100 that
-%>seemed to be a default value in Griebel's code there is a slowdown I
-%>wrote about last time. More iterations better detail I understand.,
-%>but is there any itermax that would be high enough to be
-%>scientifically significant?
-
-%Not sure what you actually see or how you measure performance improvements
-%here. I would expect the parallel GPU kernels to be significantly faster
-%than the equivalent CPU versions, due to the higher on-chip bandwidth as
-%well as the much better latency-hiding when multiple threads are used
-%(assuming enough work to do this).
-
-
-%. Have you profiled the code to spot bottlenecks?
-%
-%Read and writes are expensive as you pointed out. This comes with the
-%modularity of the code chosen.
-%
-%\subsection{Double/Float Comparison}
-%
-%>It is also surprising to see divergence in results between single and
-%>double-precision floats on CPU and GPU.
-%
-%How much divergence? Divergence can suggest that there is some difference
-%in the algorithms as implemented.
+\section{Profiling results}
+The only profiler that was finally used was NVIDIA Visual Profiler available with CUDA SDK. The profiler offered a graphical timeline that could be zoomed. First, profiler helped to discover that the biggest bottleneck of whole implementation was the residual computation, which took the most time despite the fact it was implemented using shared memory. Profiler also showed there is no overlap between memory transfer and computation in kernels that severely hindered performance.
